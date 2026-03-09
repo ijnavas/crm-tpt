@@ -1,0 +1,2 @@
+-- Catálogo orientativo, no obligatorio en esta versión.
+-- nuevo, pendiente_contacto, en_seguimiento, cualificado, interesado, no_interesado, convertido

@@ -1,0 +1,9 @@
+CREATE TABLE activity_logs (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NULL,
+    action VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP
+);

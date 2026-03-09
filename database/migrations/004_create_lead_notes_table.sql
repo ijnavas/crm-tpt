@@ -1,0 +1,9 @@
+CREATE TABLE lead_notes (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    lead_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    note TEXT NOT NULL,
+    created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_lead_notes_lead FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE,
+    CONSTRAINT fk_lead_notes_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

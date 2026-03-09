@@ -1,0 +1,13 @@
+{
+  "name": "tpt/crm",
+  "description": "CRM TPT Empleo",
+  "type": "project",
+  "require": {
+    "php": "^8.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "app/"
+    }
+  }
+}
