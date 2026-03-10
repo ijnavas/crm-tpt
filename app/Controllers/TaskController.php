@@ -28,13 +28,11 @@ final class TaskController extends Controller
     {
         $this->guard();
 
-        $filters = Request::all();
-        $result = $this->service->paginateTasks($filters);
+        $tasks = $this->service->getAll();
 
         $this->view('tasks/index', [
             'title' => 'Tareas',
-            'tasks' => $result['data'],
-            'filters' => $filters,
+            'tasks' => $tasks
         ]);
     }
 
@@ -42,9 +40,13 @@ final class TaskController extends Controller
     {
         $this->guard();
 
+        $entityType = $_GET['entity_type'] ?? null;
+        $entityId = $_GET['entity_id'] ?? null;
+
         $this->view('tasks/create', [
             'title' => 'Nueva tarea',
-            'catalogs' => $this->service->getFormCatalogs(),
+            'entityType' => $entityType,
+            'entityId' => $entityId
         ]);
     }
 
@@ -52,58 +54,27 @@ final class TaskController extends Controller
     {
         $this->guard();
 
-        $id = $this->service->createTask(Request::all());
-        $this->redirect('/tasks/' . $id);
+        $this->service->create(Request::all());
+        $this->redirect('/tasks');
     }
 
     public function show(string $id): void
     {
         $this->guard();
 
+        $task = $this->service->getById((int) $id);
+
         $this->view('tasks/show', [
             'title' => 'Ficha tarea',
-            'task' => $this->service->getTaskById((int) $id),
+            'task' => $task
         ]);
-    }
-
-    public function edit(string $id): void
-    {
-        $this->guard();
-
-        $this->view('tasks/edit', [
-            'title' => 'Editar tarea',
-            'task' => $this->service->getTaskById((int) $id),
-            'catalogs' => $this->service->getFormCatalogs(),
-        ]);
-    }
-
-    public function update(string $id): void
-    {
-        $this->guard();
-
-        $this->service->updateTask((int) $id, Request::all());
-        $this->redirect('/tasks/' . $id);
     }
 
     public function complete(string $id): void
     {
         $this->guard();
 
-        $this->service->completeTask((int) $id, Request::all());
-        $this->redirect('/tasks/' . $id);
+        $this->service->complete((int) $id);
+        $this->redirect('/tasks');
     }
-public function create(): void
-{
-    $this->guard();
-
-    $entityType = $_GET['entity_type'] ?? null;
-    $entityId = $_GET['entity_id'] ?? null;
-
-    $this->view('tasks/create', [
-        'title' => 'Nueva tarea',
-        'entityType' => $entityType,
-        'entityId' => $entityId
-    ]);
-}
-
 }
