@@ -225,4 +225,37 @@ final class LeadRepository
             'description' => $description,
         ]);
     }
+public function markAsConverted(int $leadId, int $companyId, int $contactId): void
+{
+    $stmt = $this->db->prepare("
+        UPDATE leads
+        SET status = 'convertido',
+            converted_to_company_id = :company_id,
+            converted_to_contact_id = :contact_id,
+            converted_at = NOW()
+        WHERE id = :id
+    ");
+
+    $stmt->execute([
+        'id' => $leadId,
+        'company_id' => $companyId,
+        'contact_id' => $contactId,
+    ]);
+}
+
+public function storeConversion(int $leadId, int $companyId, ?int $contactId): void
+{
+    $stmt = $this->db->prepare("
+        INSERT INTO lead_conversions (lead_id, company_id, contact_id, converted_by)
+        VALUES (:lead_id, :company_id, :contact_id, :converted_by)
+    ");
+
+    $stmt->execute([
+        'lead_id' => $leadId,
+        'company_id' => $companyId,
+        'contact_id' => $contactId,
+        'converted_by' => Auth::id(),
+    ]);
+}
+
 }

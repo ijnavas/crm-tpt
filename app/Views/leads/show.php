@@ -6,6 +6,9 @@
         <p><?= htmlspecialchars($lead['status']) ?> · <?= htmlspecialchars($lead['priority']) ?></p>
     </div>
     <a href="/leads/<?= $lead['id'] ?>/edit" class="btn btn-secondary">Editar</a>
+<?php if (($lead['status'] ?? '') !== 'convertido'): ?>
+    <a href="/leads/<?= $lead['id'] ?>/convert" class="btn btn-primary">Convertir</a>
+<?php endif; ?>
 </section>
 
 <section class="card">
@@ -25,6 +28,19 @@
         </div>
     </form>
 </section>
+
+<?php if (($lead['status'] ?? '') === 'convertido'): ?>
+    <section class="card">
+        <h2>Conversión</h2>
+        <p>
+            Este lead fue convertido.
+            <?php if (!empty($lead['converted_to_company_id'])): ?>
+                <a href="/companies/<?= $lead['converted_to_company_id'] ?>">Ver empresa creada</a>
+            <?php endif; ?>
+        </p>
+    </section>
+<?php endif; ?>
+
 
 <?php require app_path('Views/leads/partials/notes.php'); ?>
 <?php require app_path('Views/leads/partials/timeline.php'); ?>

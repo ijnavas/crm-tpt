@@ -46,5 +46,7 @@ return [
 ['POST', '/tasks/{id}/update', [TaskController::class, 'update']],
 ['POST', '/tasks/{id}/complete', [TaskController::class, 'complete']],
 
+['GET', '/leads/{id}/convert', [LeadController::class, 'convertForm']],
+['POST', '/leads/{id}/convert', [LeadController::class, 'convert']],
 
 ];

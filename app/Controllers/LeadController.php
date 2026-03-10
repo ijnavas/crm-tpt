@@ -108,4 +108,24 @@ final class LeadController extends Controller
             $this->redirect('/login');
         }
     }
+public function convertForm(string $id): void
+{
+    $this->guard();
+
+    $lead = $this->service->getLeadById((int) $id);
+
+    $this->view('leads/convert', [
+        'title' => 'Convertir lead',
+        'lead' => $lead,
+    ]);
+}
+
+public function convert(string $id): void
+{
+    $this->guard();
+
+    $result = $this->service->convertLead((int) $id, Request::all());
+
+    $this->redirect('/companies/' . $result['company_id']);
+}
 }
