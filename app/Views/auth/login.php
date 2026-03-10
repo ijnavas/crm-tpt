@@ -20,6 +20,6 @@
             <input type="password" name="password" required>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-block">Entrar</button>
+        <button type="submit" class="btn btn-primary">Entrar</button>
     </form>
 </div>
