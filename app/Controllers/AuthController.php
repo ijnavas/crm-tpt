@@ -22,10 +22,16 @@ final class AuthController extends Controller
 
     public function login(): void
     {
-        echo '<pre>';
-        var_dump($_POST);
-        echo '</pre>';
-        exit;
+        $service = new AuthService();
+        $email = trim((string) Request::input('email'));
+        $password = (string) Request::input('password');
+
+        if (!$service->attempt($email, $password)) {
+            Session::flash('error', 'Credenciales incorrectas');
+            $this->redirect('/login');
+        }
+
+        $this->redirect('/dashboard');
     }
 
     public function logout(): void
