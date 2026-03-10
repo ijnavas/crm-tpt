@@ -92,4 +92,18 @@ final class TaskController extends Controller
         $this->service->completeTask((int) $id, Request::all());
         $this->redirect('/tasks/' . $id);
     }
+public function create(): void
+{
+    $this->guard();
+
+    $entityType = $_GET['entity_type'] ?? null;
+    $entityId = $_GET['entity_id'] ?? null;
+
+    $this->view('tasks/create', [
+        'title' => 'Nueva tarea',
+        'entityType' => $entityType,
+        'entityId' => $entityId
+    ]);
+}
+
 }
