@@ -14,8 +14,9 @@ final class DashboardService
         return [
             'kpis' => $repo->getKpis(),
             'recentLeads' => $repo->getRecentLeads(5),
-            'todayTasks' => $repo->getTodayTasks(5),
-            'recentActivity' => $repo->getRecentActivity(8),
+            'upcomingTasks' => $repo->getUpcomingTasks(8),
+            'recentCompanies' => $repo->getRecentCompanies(5),
+            'recentActivity' => $repo->getRecentActivity(10),
         ];
     }
 }
