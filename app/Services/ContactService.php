@@ -26,7 +26,10 @@ final class ContactService
 
     public function getContactDetail(int $id): array
     {
-        return $this->repo->find($id);
+        $contact = $this->repo->find($id);
+        $contact['tasks']    = $this->repo->getTasks($id);
+        $contact['timeline'] = $this->repo->getTimeline($id);
+        return $contact;
     }
 
     public function createContact(array $data): int
@@ -43,9 +46,9 @@ final class ContactService
     {
         return [
             'decision_levels' => ['decisor', 'influenciador', 'tecnico', 'administrativo'],
-            'statuses' => ['activo', 'inactivo', 'sin_respuesta'],
-            'channels' => ['telefono', 'email', 'whatsapp'],
-            'companies' => $this->repo->getCompanies(),
+            'statuses'        => ['activo', 'inactivo', 'sin_respuesta'],
+            'channels'        => ['telefono', 'email', 'whatsapp'],
+            'companies'       => $this->repo->getCompanies(),
         ];
     }
 }

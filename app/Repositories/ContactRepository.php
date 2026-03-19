@@ -140,3 +140,25 @@ final class ContactRepository
         return $stmt->fetchAll();
     }
 }
+    public function getTasks(int $contactId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM tasks
+            WHERE entity_type = 'contact' AND entity_id = :entity_id
+            ORDER BY due_date ASC
+        ");
+        $stmt->execute(['entity_id' => $contactId]);
+        return $stmt->fetchAll();
+    }
+
+    public function getTimeline(int $contactId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT * FROM activity_logs
+            WHERE entity_type = 'contact' AND entity_id = :entity_id
+            ORDER BY created_at DESC
+        ");
+        $stmt->execute(['entity_id' => $contactId]);
+        return $stmt->fetchAll();
+    }
+}
