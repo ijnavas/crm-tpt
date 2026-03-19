@@ -64,17 +64,22 @@ final class LeadRepository
 
     public function insert(array $data): int
     {
+        // Si viene fecha manual del formulario la usamos, si no la de hoy
+        $createdAt = !empty($data['created_at_manual'])
+            ? $data['created_at_manual']
+            : date('Y-m-d');
+
         $stmt = $this->db->prepare('
             INSERT INTO leads (
                 full_name, first_name, last_name, company_name, job_title, phone, mobile, email,
                 website, city, province, source, channel, campaign, service_interest,
                 status, priority, temperature, next_action, notes_internal,
-                assigned_user_id, created_by
+                assigned_user_id, created_by, created_at
             ) VALUES (
                 :full_name, :first_name, :last_name, :company_name, :job_title, :phone, :mobile, :email,
                 :website, :city, :province, :source, :channel, :campaign, :service_interest,
                 :status, :priority, :temperature, :next_action, :notes_internal,
-                :assigned_user_id, :created_by
+                :assigned_user_id, :created_by, :created_at
             )
         ');
 
@@ -101,6 +106,7 @@ final class LeadRepository
             'notes_internal' => $data['notes_internal'] ?? null,
             'assigned_user_id' => $data['assigned_user_id'] ?? Auth::id(),
             'created_by' => Auth::id(),
+            'created_at' => $createdAt,
         ]);
 
         return (int)$this->db->lastInsertId();

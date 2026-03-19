@@ -1,17 +1,17 @@
 <div class="form-grid">
     <div class="form-group">
         <label>Nombre</label>
-        <input type="text" name="first_name" value="<?= htmlspecialchars($lead['first_name'] ?? '') ?>">
+        <input type="text" name="first_name" class="autocap" value="<?= htmlspecialchars($lead['first_name'] ?? '') ?>">
     </div>
 
     <div class="form-group">
         <label>Apellidos</label>
-        <input type="text" name="last_name" value="<?= htmlspecialchars($lead['last_name'] ?? '') ?>">
+        <input type="text" name="last_name" class="autocap" value="<?= htmlspecialchars($lead['last_name'] ?? '') ?>">
     </div>
 
     <div class="form-group">
         <label>Empresa</label>
-        <input type="text" name="company_name" value="<?= htmlspecialchars($lead['company_name'] ?? '') ?>">
+        <input type="text" name="company_name" class="autocap" value="<?= htmlspecialchars($lead['company_name'] ?? '') ?>">
     </div>
 
     <div class="form-group">
@@ -25,11 +25,17 @@
     </div>
 
     <div class="form-group">
+        <label>Fecha de alta</label>
+        <input type="date" name="created_at_manual"
+               value="<?= htmlspecialchars($lead['created_at_manual'] ?? date('Y-m-d')) ?>">
+    </div>
+
+    <div class="form-group">
         <label>Estado</label>
         <select name="status">
             <?php foreach ($catalogs['statuses'] as $status): ?>
                 <option value="<?= $status ?>" <?= (($lead['status'] ?? 'nuevo') === $status) ? 'selected' : '' ?>>
-                    <?= $status ?>
+                    <?= ucfirst(str_replace('_', ' ', $status)) ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -40,7 +46,7 @@
         <select name="priority">
             <?php foreach ($catalogs['priorities'] as $priority): ?>
                 <option value="<?= $priority ?>" <?= (($lead['priority'] ?? 'media') === $priority) ? 'selected' : '' ?>>
-                    <?= $priority ?>
+                    <?= ucfirst($priority) ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -51,7 +57,7 @@
         <select name="source">
             <?php foreach ($catalogs['sources'] as $source): ?>
                 <option value="<?= $source ?>" <?= (($lead['source'] ?? 'web') === $source) ? 'selected' : '' ?>>
-                    <?= $source ?>
+                    <?= ucfirst(str_replace('_', ' ', $source)) ?>
                 </option>
             <?php endforeach; ?>
         </select>
@@ -62,3 +68,16 @@
     <label>Notas internas</label>
     <textarea name="notes_internal" rows="4"><?= htmlspecialchars($lead['notes_internal'] ?? '') ?></textarea>
 </div>
+
+<script>
+document.querySelectorAll('input.autocap').forEach(function(input) {
+    input.addEventListener('input', function() {
+        var pos = this.selectionStart;
+        var val = this.value;
+        if (val.length > 0) {
+            this.value = val.charAt(0).toUpperCase() + val.slice(1);
+            this.setSelectionRange(pos, pos);
+        }
+    });
+});
+</script>
