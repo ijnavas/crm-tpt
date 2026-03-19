@@ -32,9 +32,9 @@ final class ContactController extends Controller
         $result = $this->service->paginateContacts($filters);
 
         $this->view('contacts/index', [
-            'title' => 'Contactos',
+            'title'    => 'Contactos',
             'contacts' => $result['data'],
-            'filters' => $filters,
+            'filters'  => $filters,
         ]);
     }
 
@@ -43,7 +43,7 @@ final class ContactController extends Controller
         $this->guard();
 
         $this->view('contacts/create', [
-            'title' => 'Nuevo contacto',
+            'title'    => 'Nuevo contacto',
             'catalogs' => $this->service->getFormCatalogs(),
         ]);
     }
@@ -60,9 +60,15 @@ final class ContactController extends Controller
     {
         $this->guard();
 
+        $contact = $this->service->getContactDetail((int) $id);
+
+        if (empty($contact)) {
+            $this->redirect('/contacts');
+        }
+
         $this->view('contacts/show', [
-            'title' => 'Ficha contacto',
-            'contact' => $this->service->getContactDetail((int) $id),
+            'title'   => 'Ficha contacto',
+            'contact' => $contact,
         ]);
     }
 
@@ -70,9 +76,15 @@ final class ContactController extends Controller
     {
         $this->guard();
 
+        $contact = $this->service->getContactById((int) $id);
+
+        if (empty($contact)) {
+            $this->redirect('/contacts');
+        }
+
         $this->view('contacts/edit', [
-            'title' => 'Editar contacto',
-            'contact' => $this->service->getContactById((int) $id),
+            'title'    => 'Editar contacto',
+            'contact'  => $contact,
             'catalogs' => $this->service->getFormCatalogs(),
         ]);
     }

@@ -39,7 +39,7 @@ final class ContactRepository
         $stmt = $this->db->prepare("
             SELECT cc.*, c.name AS company_name
             FROM company_contacts cc
-            INNER JOIN companies c ON c.id = cc.company_id
+            LEFT JOIN companies c ON c.id = cc.company_id
             WHERE cc.id = :id
             LIMIT 1
         ");
