@@ -7,6 +7,7 @@ use App\Controllers\LeadController;
 use App\Controllers\CompanyController;
 use App\Controllers\ContactController;
 use App\Controllers\TaskController;
+use App\Controllers\SearchController;
 
 return [
     ['GET', '/', [AuthController::class, 'loginForm']],
@@ -48,5 +49,7 @@ return [
 
 ['GET', '/leads/{id}/convert', [LeadController::class, 'convertForm']],
 ['POST', '/leads/{id}/convert', [LeadController::class, 'convert']],
+
+['GET', '/search', [SearchController::class, 'search']],
 
 ];

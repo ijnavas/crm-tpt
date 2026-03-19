@@ -7,35 +7,35 @@
 
 <section class="kpi-grid">
 
-    <div class="card">
+    <a href="/leads?period=today" class="card kpi-card">
         <h3>Leads hoy</h3>
         <p class="kpi-number"><?= $dashboard['kpis']['leads_today'] ?></p>
-    </div>
+    </a>
 
-    <div class="card">
+    <a href="/leads?period=week" class="card kpi-card">
         <h3>Leads semana</h3>
         <p class="kpi-number"><?= $dashboard['kpis']['leads_week'] ?></p>
-    </div>
+    </a>
 
-    <div class="card">
+    <a href="/companies?status=activa" class="card kpi-card">
         <h3>Empresas activas</h3>
         <p class="kpi-number"><?= $dashboard['kpis']['active_companies'] ?></p>
-    </div>
+    </a>
 
-    <div class="card">
+    <a href="/tasks?status=pendiente" class="card kpi-card">
         <h3>Tareas pendientes</h3>
         <p class="kpi-number"><?= $dashboard['kpis']['pending_tasks'] ?></p>
-    </div>
+    </a>
 
-    <div class="card">
+    <a href="/tasks?status=vencida" class="card kpi-card kpi-card--danger">
         <h3>Tareas vencidas</h3>
         <p class="kpi-number"><?= $dashboard['kpis']['overdue_tasks'] ?></p>
-    </div>
+    </a>
 
-    <div class="card">
+    <a href="/leads?status=convertido" class="card kpi-card kpi-card--success">
         <h3>Leads convertidos</h3>
         <p class="kpi-number"><?= $dashboard['kpis']['converted_leads'] ?></p>
-    </div>
+    </a>
 
 </section>
 

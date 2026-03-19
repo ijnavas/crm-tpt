@@ -27,6 +27,49 @@
     letter-spacing: -0.5px;
 }
 
+/* KPI cards as links */
+a.kpi-card {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    cursor: pointer;
+}
+
+a.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(15, 39, 71, 0.10);
+    border-color: var(--primary);
+}
+
+a.kpi-card:hover h3 {
+    color: var(--primary);
+}
+
+a.kpi-card--danger:hover {
+    border-color: var(--danger);
+}
+
+a.kpi-card--danger:hover h3 {
+    color: var(--danger);
+}
+
+a.kpi-card--danger .kpi-number {
+    color: var(--danger);
+}
+
+a.kpi-card--success:hover {
+    border-color: var(--success);
+}
+
+a.kpi-card--success:hover h3 {
+    color: var(--success);
+}
+
+a.kpi-card--success .kpi-number {
+    color: var(--success);
+}
+
 .dashboard-columns {
     display: grid;
     grid-template-columns: 1.2fr 1fr;

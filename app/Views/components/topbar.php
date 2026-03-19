@@ -1,8 +1,14 @@
 <?php $user = \App\Core\Auth::user(); ?>
 
 <header class="topbar">
-    <div class="topbar-search">
-        <input type="text" placeholder="Buscar empresa o contacto...">
+    <div class="topbar-search" id="search-wrapper">
+        <input
+            type="text"
+            id="global-search"
+            placeholder="Buscar empresa o contacto..."
+            autocomplete="off"
+        >
+        <div class="search-dropdown" id="search-dropdown"></div>
     </div>
 
     <div class="topbar-actions">
@@ -25,3 +31,115 @@
         </div>
     </div>
 </header>
+
+<script>
+(function () {
+    const input = document.getElementById('global-search');
+    const dropdown = document.getElementById('search-dropdown');
+    let timer = null;
+
+    input.addEventListener('input', function () {
+        clearTimeout(timer);
+        const q = this.value.trim();
+        if (q.length < 2) { dropdown.innerHTML = ''; dropdown.classList.remove('open'); return; }
+        timer = setTimeout(() => fetchResults(q), 220);
+    });
+
+    input.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { dropdown.innerHTML = ''; dropdown.classList.remove('open'); }
+        if (e.key === 'ArrowDown') { focusItem(0); e.preventDefault(); }
+    });
+
+    document.addEventListener('click', function (e) {
+        if (!document.getElementById('search-wrapper').contains(e.target)) {
+            dropdown.innerHTML = ''; dropdown.classList.remove('open');
+        }
+    });
+
+    function focusItem(index) {
+        const items = dropdown.querySelectorAll('.search-item');
+        if (items[index]) items[index].focus();
+    }
+
+    function fetchResults(q) {
+        fetch('/search?q=' + encodeURIComponent(q))
+            .then(r => r.json())
+            .then(data => renderResults(data))
+            .catch(() => {});
+    }
+
+    function renderResults(data) {
+        dropdown.innerHTML = '';
+        const total = (data.companies || []).length + (data.contacts || []).length;
+
+        if (total === 0) {
+            dropdown.innerHTML = '<div class="search-empty">Sin resultados</div>';
+            dropdown.classList.add('open');
+            return;
+        }
+
+        if (data.companies && data.companies.length > 0) {
+            const label = document.createElement('div');
+            label.className = 'search-label';
+            label.textContent = 'Empresas';
+            dropdown.appendChild(label);
+
+            data.companies.forEach(c => {
+                const a = document.createElement('a');
+                a.className = 'search-item';
+                a.href = '/companies/' + c.id;
+                a.tabIndex = 0;
+                a.innerHTML =
+                    '<span class="search-item-icon search-item-icon--company">E</span>' +
+                    '<span class="search-item-body">' +
+                        '<strong>' + esc(c.name) + '</strong>' +
+                        '<small>' + esc(c.sector || '') + (c.city ? ' · ' + esc(c.city) : '') + '</small>' +
+                    '</span>' +
+                    '<span class="search-item-badge search-item-badge--' + esc(c.status || '') + '">' + esc(c.status || '') + '</span>';
+                a.addEventListener('keydown', e => {
+                    const items = [...dropdown.querySelectorAll('.search-item')];
+                    const idx = items.indexOf(a);
+                    if (e.key === 'ArrowDown' && items[idx+1]) { items[idx+1].focus(); e.preventDefault(); }
+                    if (e.key === 'ArrowUp') { idx > 0 ? items[idx-1].focus() : input.focus(); e.preventDefault(); }
+                    if (e.key === 'Enter') { window.location = a.href; }
+                });
+                dropdown.appendChild(a);
+            });
+        }
+
+        if (data.contacts && data.contacts.length > 0) {
+            const label = document.createElement('div');
+            label.className = 'search-label';
+            label.textContent = 'Contactos';
+            dropdown.appendChild(label);
+
+            data.contacts.forEach(c => {
+                const a = document.createElement('a');
+                a.className = 'search-item';
+                a.href = '/contacts/' + c.id;
+                a.tabIndex = 0;
+                a.innerHTML =
+                    '<span class="search-item-icon search-item-icon--contact">' + esc((c.full_name || 'C').charAt(0).toUpperCase()) + '</span>' +
+                    '<span class="search-item-body">' +
+                        '<strong>' + esc(c.full_name) + '</strong>' +
+                        '<small>' + esc(c.job_title || '') + (c.company_name ? ' · ' + esc(c.company_name) : '') + '</small>' +
+                    '</span>';
+                a.addEventListener('keydown', e => {
+                    const items = [...dropdown.querySelectorAll('.search-item')];
+                    const idx = items.indexOf(a);
+                    if (e.key === 'ArrowDown' && items[idx+1]) { items[idx+1].focus(); e.preventDefault(); }
+                    if (e.key === 'ArrowUp') { idx > 0 ? items[idx-1].focus() : input.focus(); e.preventDefault(); }
+                    if (e.key === 'Enter') { window.location = a.href; }
+                });
+                dropdown.appendChild(a);
+            });
+        }
+
+        dropdown.classList.add('open');
+    }
+
+    function esc(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+})();
+</script>
