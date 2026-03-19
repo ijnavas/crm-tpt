@@ -29,20 +29,34 @@
     </div>
 </header>
 
-<!-- Dropdown fuera del topbar para evitar problemas de stacking context -->
+<!-- Dropdown fuera del topbar, se posiciona via JS pegado al input -->
 <div class="search-dropdown" id="search-dropdown"></div>
 
 <script>
 (function () {
     const input    = document.getElementById('global-search');
     const dropdown = document.getElementById('search-dropdown');
+    const wrapper  = document.getElementById('search-wrapper');
     let timer = null;
 
     function positionDropdown() {
         const rect = input.getBoundingClientRect();
-        dropdown.style.top   = (rect.bottom + 6) + 'px';
+        // Sin gap: top = bottom del input exacto (no +6px)
+        dropdown.style.top   = rect.bottom + 'px';
         dropdown.style.left  = rect.left + 'px';
         dropdown.style.width = rect.width + 'px';
+    }
+
+    function open() {
+        positionDropdown();
+        wrapper.classList.add('is-open');
+        dropdown.classList.add('open');
+    }
+
+    function close() {
+        dropdown.innerHTML = '';
+        dropdown.classList.remove('open');
+        wrapper.classList.remove('is-open');
     }
 
     input.addEventListener('input', function () {
@@ -57,24 +71,15 @@
         if (e.key === 'ArrowDown') { focusItem(0); e.preventDefault(); }
     });
 
-    input.addEventListener('focus', function () {
-        if (dropdown.classList.contains('open')) positionDropdown();
-    });
-
     window.addEventListener('resize', function () {
         if (dropdown.classList.contains('open')) positionDropdown();
     });
 
     document.addEventListener('click', function (e) {
-        if (!document.getElementById('search-wrapper').contains(e.target) && !dropdown.contains(e.target)) {
+        if (!wrapper.contains(e.target) && !dropdown.contains(e.target)) {
             close();
         }
     });
-
-    function close() {
-        dropdown.innerHTML = '';
-        dropdown.classList.remove('open');
-    }
 
     function focusItem(index) {
         const items = dropdown.querySelectorAll('.search-item');
@@ -94,8 +99,7 @@
 
         if (total === 0) {
             dropdown.innerHTML = '<div class="search-empty">Sin resultados</div>';
-            positionDropdown();
-            dropdown.classList.add('open');
+            open();
             return;
         }
 
@@ -104,22 +108,7 @@
             label.className = 'search-label';
             label.textContent = 'Empresas';
             dropdown.appendChild(label);
-
-            data.companies.forEach(c => {
-                const a = document.createElement('a');
-                a.className = 'search-item';
-                a.href = '/companies/' + c.id;
-                a.tabIndex = 0;
-                a.innerHTML =
-                    '<span class="search-item-icon search-item-icon--company">E</span>' +
-                    '<span class="search-item-body">' +
-                        '<strong>' + esc(c.name) + '</strong>' +
-                        '<small>' + esc(c.sector || '') + (c.city ? ' · ' + esc(c.city) : '') + '</small>' +
-                    '</span>' +
-                    '<span class="search-item-badge search-item-badge--' + esc(c.status || '') + '">' + esc(c.status || '') + '</span>';
-                addKeyNav(a);
-                dropdown.appendChild(a);
-            });
+            data.companies.forEach(c => dropdown.appendChild(makeCompanyItem(c)));
         }
 
         if (data.contacts && data.contacts.length > 0) {
@@ -127,25 +116,41 @@
             label.className = 'search-label';
             label.textContent = 'Contactos';
             dropdown.appendChild(label);
-
-            data.contacts.forEach(c => {
-                const a = document.createElement('a');
-                a.className = 'search-item';
-                a.href = '/contacts/' + c.id;
-                a.tabIndex = 0;
-                a.innerHTML =
-                    '<span class="search-item-icon search-item-icon--contact">' + esc((c.full_name || 'C').charAt(0).toUpperCase()) + '</span>' +
-                    '<span class="search-item-body">' +
-                        '<strong>' + esc(c.full_name) + '</strong>' +
-                        '<small>' + esc(c.job_title || '') + (c.company_name ? ' · ' + esc(c.company_name) : '') + '</small>' +
-                    '</span>';
-                addKeyNav(a);
-                dropdown.appendChild(a);
-            });
+            data.contacts.forEach(c => dropdown.appendChild(makeContactItem(c)));
         }
 
-        positionDropdown();
-        dropdown.classList.add('open');
+        open();
+    }
+
+    function makeCompanyItem(c) {
+        const a = document.createElement('a');
+        a.className = 'search-item';
+        a.href = '/companies/' + c.id;
+        a.tabIndex = 0;
+        a.innerHTML =
+            '<span class="search-item-icon search-item-icon--company">E</span>' +
+            '<span class="search-item-body">' +
+                '<strong>' + esc(c.name) + '</strong>' +
+                '<small>' + esc(c.sector || '') + (c.city ? ' · ' + esc(c.city) : '') + '</small>' +
+            '</span>' +
+            '<span class="search-item-badge search-item-badge--' + esc(c.status || '') + '">' + esc(c.status || '') + '</span>';
+        addKeyNav(a);
+        return a;
+    }
+
+    function makeContactItem(c) {
+        const a = document.createElement('a');
+        a.className = 'search-item';
+        a.href = '/contacts/' + c.id;
+        a.tabIndex = 0;
+        a.innerHTML =
+            '<span class="search-item-icon search-item-icon--contact">' + esc((c.full_name || 'C').charAt(0).toUpperCase()) + '</span>' +
+            '<span class="search-item-body">' +
+                '<strong>' + esc(c.full_name) + '</strong>' +
+                '<small>' + esc(c.job_title || '') + (c.company_name ? ' · ' + esc(c.company_name) : '') + '</small>' +
+            '</span>';
+        addKeyNav(a);
+        return a;
     }
 
     function addKeyNav(a) {

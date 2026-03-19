@@ -131,33 +131,62 @@ button, input, select, textarea { font: inherit; }
     position: relative;
 }
 
+/* Estado normal: input con bordes redondeados completos */
 .topbar-search input {
     width: 100%;
     height: 42px;
     border-radius: 12px;
     border: 1px solid var(--border);
     background: #fff;
-    padding: 0 16px;
+    padding: 0 40px 0 16px;
     outline: none;
+    transition: border-radius 0.1s, border-color 0.15s, box-shadow 0.15s;
+    position: relative;
+    z-index: 2;
 }
 
-.topbar-search input:focus {
+/* Cuando el dropdown está abierto: el input pierde el radio inferior
+   y su borde inferior desaparece para fusionarse con el dropdown */
+.topbar-search.is-open input {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
     border-color: var(--primary);
+    border-bottom-color: var(--border-soft);
     box-shadow: 0 0 0 4px rgba(47, 128, 237, 0.08);
 }
 
-/* Dropdown usa position:fixed y se posiciona via JS para escapar de cualquier stacking context */
+/* Icono lupa dentro del input */
+.topbar-search::before {
+    content: '';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath stroke-linecap='round' d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 3;
+}
+
+/* Dropdown: se fusiona con el input visualmente */
 .search-dropdown {
     display: none;
     position: fixed;
     background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    box-shadow: 0 12px 32px rgba(15, 39, 71, 0.14);
+    /* Solo borde lateral y borde inferior — el borde superior lo aporta el input */
+    border: 1px solid var(--primary);
+    border-top: none;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    box-shadow: 0 8px 24px rgba(47, 128, 237, 0.12), 0 0 0 4px rgba(47, 128, 237, 0.08);
     z-index: 9999;
-    max-height: 380px;
+    max-height: 340px;
     overflow-y: auto;
-    min-width: 360px;
 }
 .search-dropdown.open { display: block; }
 
