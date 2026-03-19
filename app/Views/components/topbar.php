@@ -8,7 +8,6 @@
             placeholder="Buscar empresa o contacto..."
             autocomplete="off"
         >
-        <div class="search-dropdown" id="search-dropdown"></div>
     </div>
 
     <div class="topbar-actions">
@@ -19,12 +18,10 @@
             <div class="topbar-avatar">
                 <?= strtoupper(substr($user['first_name'] ?? 'U', 0, 1)) ?>
             </div>
-
             <div class="topbar-user-info">
                 <strong><?= htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')) ?></strong>
                 <span><?= htmlspecialchars($user['email'] ?? '') ?></span>
             </div>
-
             <form action="/logout" method="POST">
                 <button type="submit" class="topbar-logout">Salir</button>
             </form>
@@ -32,29 +29,52 @@
     </div>
 </header>
 
+<!-- Dropdown fuera del topbar para evitar problemas de stacking context -->
+<div class="search-dropdown" id="search-dropdown"></div>
+
 <script>
 (function () {
-    const input = document.getElementById('global-search');
+    const input    = document.getElementById('global-search');
     const dropdown = document.getElementById('search-dropdown');
     let timer = null;
+
+    function positionDropdown() {
+        const rect = input.getBoundingClientRect();
+        dropdown.style.top   = (rect.bottom + 6) + 'px';
+        dropdown.style.left  = rect.left + 'px';
+        dropdown.style.width = rect.width + 'px';
+    }
 
     input.addEventListener('input', function () {
         clearTimeout(timer);
         const q = this.value.trim();
-        if (q.length < 2) { dropdown.innerHTML = ''; dropdown.classList.remove('open'); return; }
+        if (q.length < 2) { close(); return; }
         timer = setTimeout(() => fetchResults(q), 220);
     });
 
     input.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { dropdown.innerHTML = ''; dropdown.classList.remove('open'); }
+        if (e.key === 'Escape') { close(); }
         if (e.key === 'ArrowDown') { focusItem(0); e.preventDefault(); }
     });
 
+    input.addEventListener('focus', function () {
+        if (dropdown.classList.contains('open')) positionDropdown();
+    });
+
+    window.addEventListener('resize', function () {
+        if (dropdown.classList.contains('open')) positionDropdown();
+    });
+
     document.addEventListener('click', function (e) {
-        if (!document.getElementById('search-wrapper').contains(e.target)) {
-            dropdown.innerHTML = ''; dropdown.classList.remove('open');
+        if (!document.getElementById('search-wrapper').contains(e.target) && !dropdown.contains(e.target)) {
+            close();
         }
     });
+
+    function close() {
+        dropdown.innerHTML = '';
+        dropdown.classList.remove('open');
+    }
 
     function focusItem(index) {
         const items = dropdown.querySelectorAll('.search-item');
@@ -74,6 +94,7 @@
 
         if (total === 0) {
             dropdown.innerHTML = '<div class="search-empty">Sin resultados</div>';
+            positionDropdown();
             dropdown.classList.add('open');
             return;
         }
@@ -96,13 +117,7 @@
                         '<small>' + esc(c.sector || '') + (c.city ? ' · ' + esc(c.city) : '') + '</small>' +
                     '</span>' +
                     '<span class="search-item-badge search-item-badge--' + esc(c.status || '') + '">' + esc(c.status || '') + '</span>';
-                a.addEventListener('keydown', e => {
-                    const items = [...dropdown.querySelectorAll('.search-item')];
-                    const idx = items.indexOf(a);
-                    if (e.key === 'ArrowDown' && items[idx+1]) { items[idx+1].focus(); e.preventDefault(); }
-                    if (e.key === 'ArrowUp') { idx > 0 ? items[idx-1].focus() : input.focus(); e.preventDefault(); }
-                    if (e.key === 'Enter') { window.location = a.href; }
-                });
+                addKeyNav(a);
                 dropdown.appendChild(a);
             });
         }
@@ -124,18 +139,24 @@
                         '<strong>' + esc(c.full_name) + '</strong>' +
                         '<small>' + esc(c.job_title || '') + (c.company_name ? ' · ' + esc(c.company_name) : '') + '</small>' +
                     '</span>';
-                a.addEventListener('keydown', e => {
-                    const items = [...dropdown.querySelectorAll('.search-item')];
-                    const idx = items.indexOf(a);
-                    if (e.key === 'ArrowDown' && items[idx+1]) { items[idx+1].focus(); e.preventDefault(); }
-                    if (e.key === 'ArrowUp') { idx > 0 ? items[idx-1].focus() : input.focus(); e.preventDefault(); }
-                    if (e.key === 'Enter') { window.location = a.href; }
-                });
+                addKeyNav(a);
                 dropdown.appendChild(a);
             });
         }
 
+        positionDropdown();
         dropdown.classList.add('open');
+    }
+
+    function addKeyNav(a) {
+        a.addEventListener('keydown', e => {
+            const items = [...dropdown.querySelectorAll('.search-item')];
+            const idx = items.indexOf(a);
+            if (e.key === 'ArrowDown' && items[idx + 1]) { items[idx + 1].focus(); e.preventDefault(); }
+            if (e.key === 'ArrowUp')  { idx > 0 ? items[idx - 1].focus() : input.focus(); e.preventDefault(); }
+            if (e.key === 'Enter')    { window.location = a.href; }
+            if (e.key === 'Escape')   { close(); input.focus(); }
+        });
     }
 
     function esc(str) {
