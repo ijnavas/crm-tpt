@@ -12,11 +12,12 @@ final class DashboardService
         $repo = new DashboardRepository();
 
         return [
-            'kpis' => $repo->getKpis(),
-            'recentLeads' => $repo->getRecentLeads(5),
-            'upcomingTasks' => $repo->getUpcomingTasks(8),
+            'kpis'            => $repo->getKpis(),
+            'leadsPerDay'     => $repo->getLeadsPerDay(),
+            'recentLeads'     => $repo->getRecentLeads(5),
+            'upcomingTasks'   => $repo->getUpcomingTasks(8),
             'recentCompanies' => $repo->getRecentCompanies(5),
-            'recentActivity' => $repo->getRecentActivity(10),
+            'recentActivity'  => $repo->getRecentActivity(10),
         ];
     }
 }
