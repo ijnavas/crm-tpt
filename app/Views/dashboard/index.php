@@ -1,161 +1,217 @@
-<section class="page-header">
-    <div>
-        <h1>Dashboard</h1>
-        <p>Resumen general del CRM</p>
+<?php
+$kpis = $dashboard['kpis'];
+$leads = $dashboard['recentLeads'];
+$tasks = $dashboard['upcomingTasks'];
+$companies = $dashboard['recentCompanies'];
+$activity = $dashboard['recentActivity'];
+
+function statusBadge(string $status): string {
+    $map = [
+        'nuevo'              => ['label' => 'Nuevo',              'class' => 'badge-blue'],
+        'pendiente_contacto' => ['label' => 'Pend. contacto',     'class' => 'badge-yellow'],
+        'en_seguimiento'     => ['label' => 'Seguimiento',        'class' => 'badge-purple'],
+        'cualificado'        => ['label' => 'Cualificado',        'class' => 'badge-teal'],
+        'interesado'         => ['label' => 'Interesado',         'class' => 'badge-green'],
+        'no_interesado'      => ['label' => 'No interesado',      'class' => 'badge-gray'],
+        'convertido'         => ['label' => 'Convertido',         'class' => 'badge-green'],
+        'activa'             => ['label' => 'Activa',             'class' => 'badge-green'],
+        'prospecto'          => ['label' => 'Prospecto',          'class' => 'badge-yellow'],
+        'inactiva'           => ['label' => 'Inactiva',           'class' => 'badge-gray'],
+        'pendiente'          => ['label' => 'Pendiente',          'class' => 'badge-yellow'],
+        'en_curso'           => ['label' => 'En curso',           'class' => 'badge-blue'],
+        'completada'         => ['label' => 'Completada',         'class' => 'badge-green'],
+    ];
+    $b = $map[$status] ?? ['label' => ucfirst(str_replace('_',' ',$status)), 'class' => 'badge-gray'];
+    return '<span class="db-badge ' . $b['class'] . '">' . $b['label'] . '</span>';
+}
+
+function priorityDot(string $p): string {
+    $map = ['urgente'=>'dot-red','alta'=>'dot-orange','media'=>'dot-yellow','baja'=>'dot-gray'];
+    return '<span class="db-dot ' . ($map[$p] ?? 'dot-gray') . '"></span>';
+}
+
+function timeAgo(string $dt): string {
+    $diff = time() - strtotime($dt);
+    if ($diff < 60)     return 'Ahora';
+    if ($diff < 3600)   return floor($diff/60) . 'm';
+    if ($diff < 86400)  return floor($diff/3600) . 'h';
+    if ($diff < 604800) return floor($diff/86400) . 'd';
+    return date('d/m', strtotime($dt));
+}
+
+function entityIcon(string $type): string {
+    return $type === 'company' ? '🏢' : ($type === 'lead' ? '👤' : ($type === 'contact' ? '📋' : '✓'));
+}
+?>
+
+<div class="db-wrap">
+
+    <!-- Header -->
+    <div class="db-header">
+        <div>
+            <h1 class="db-title">Dashboard</h1>
+            <p class="db-subtitle"><?= date('l, j \d\e F \d\e Y') ?></p>
+        </div>
+        <a href="/leads/create" class="db-btn-new">+ Nuevo lead</a>
     </div>
-</section>
 
-<section class="kpi-grid">
+    <!-- KPIs -->
+    <div class="db-kpis">
 
-    <a href="/leads?period=today" class="card kpi-card">
-        <h3>Leads hoy</h3>
-        <p class="kpi-number"><?= $dashboard['kpis']['leads_today'] ?></p>
-    </a>
+        <a href="/leads?period=today" class="db-kpi">
+            <div class="db-kpi-label">Leads hoy</div>
+            <div class="db-kpi-value"><?= $kpis['leads_today'] ?></div>
+            <div class="db-kpi-bar db-kpi-bar--blue"></div>
+        </a>
 
-    <a href="/leads?period=week" class="card kpi-card">
-        <h3>Leads semana</h3>
-        <p class="kpi-number"><?= $dashboard['kpis']['leads_week'] ?></p>
-    </a>
+        <a href="/leads?period=week" class="db-kpi">
+            <div class="db-kpi-label">Esta semana</div>
+            <div class="db-kpi-value"><?= $kpis['leads_week'] ?></div>
+            <div class="db-kpi-bar db-kpi-bar--blue"></div>
+        </a>
 
-    <a href="/companies?status=activa" class="card kpi-card">
-        <h3>Empresas activas</h3>
-        <p class="kpi-number"><?= $dashboard['kpis']['active_companies'] ?></p>
-    </a>
+        <a href="/companies?status=activa" class="db-kpi">
+            <div class="db-kpi-label">Empresas activas</div>
+            <div class="db-kpi-value"><?= $kpis['active_companies'] ?></div>
+            <div class="db-kpi-bar db-kpi-bar--teal"></div>
+        </a>
 
-    <a href="/tasks?status=pendiente" class="card kpi-card">
-        <h3>Tareas pendientes</h3>
-        <p class="kpi-number"><?= $dashboard['kpis']['pending_tasks'] ?></p>
-    </a>
+        <a href="/tasks?status=pendiente" class="db-kpi">
+            <div class="db-kpi-label">Tareas pendientes</div>
+            <div class="db-kpi-value"><?= $kpis['pending_tasks'] ?></div>
+            <div class="db-kpi-bar db-kpi-bar--yellow"></div>
+        </a>
 
-    <a href="/tasks?status=vencida" class="card kpi-card kpi-card--danger">
-        <h3>Tareas vencidas</h3>
-        <p class="kpi-number"><?= $dashboard['kpis']['overdue_tasks'] ?></p>
-    </a>
+        <a href="/tasks?status=vencida" class="db-kpi <?= $kpis['overdue_tasks'] > 0 ? 'db-kpi--alert' : '' ?>">
+            <div class="db-kpi-label">Vencidas</div>
+            <div class="db-kpi-value"><?= $kpis['overdue_tasks'] ?></div>
+            <div class="db-kpi-bar db-kpi-bar--red"></div>
+        </a>
 
-    <a href="/leads?status=convertido" class="card kpi-card kpi-card--success">
-        <h3>Leads convertidos</h3>
-        <p class="kpi-number"><?= $dashboard['kpis']['converted_leads'] ?></p>
-    </a>
+        <a href="/leads?status=convertido" class="db-kpi">
+            <div class="db-kpi-label">Convertidos</div>
+            <div class="db-kpi-value"><?= $kpis['converted_leads'] ?></div>
+            <div class="db-kpi-bar db-kpi-bar--green"></div>
+        </a>
 
-</section>
+    </div>
 
-<section class="dashboard-columns">
+    <!-- Grid principal -->
+    <div class="db-grid">
 
-    <div class="card">
-        <h2>Últimos leads</h2>
-
-        <?php if (empty($dashboard['recentLeads'])): ?>
-            <p>No hay leads recientes.</p>
-        <?php else: ?>
-            <table class="table">
+        <!-- Últimos leads -->
+        <div class="db-panel db-panel--leads">
+            <div class="db-panel-head">
+                <span class="db-panel-title">Últimos leads</span>
+                <a href="/leads" class="db-panel-link">Ver todos →</a>
+            </div>
+            <?php if (empty($leads)): ?>
+                <div class="db-empty">Sin leads recientes</div>
+            <?php else: ?>
+            <div class="db-table-wrap"><table class="db-table">
                 <thead>
                     <tr>
                         <th>Lead</th>
                         <th>Estado</th>
                         <th>Prioridad</th>
-                        <th>Próximo contacto</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($dashboard['recentLeads'] as $lead): ?>
-                        <tr>
-                            <td>
-                                <a href="/leads/<?= $lead['id'] ?>">
-                                    <?= htmlspecialchars($lead['company_name'] ?: $lead['full_name']) ?>
-                                </a>
-                            </td>
-                            <td><?= htmlspecialchars($lead['status'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($lead['priority'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($lead['next_contact_at'] ?? '-') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
-
-    <div class="card">
-        <h2>Próximas tareas</h2>
-
-        <?php if (empty($dashboard['upcomingTasks'])): ?>
-            <p>No hay tareas.</p>
-        <?php else: ?>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Tarea</th>
-                        <th>Entidad</th>
-                        <th>Estado</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($dashboard['upcomingTasks'] as $task): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($task['title'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars(($task['entity_type'] ?? '-') . ' #' . ($task['entity_id'] ?? '-')) ?></td>
-                            <td><?= htmlspecialchars($task['status'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($task['due_date'] ?? '-') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
-    </div>
-
-</section>
-
-<section class="dashboard-columns">
-
-    <div class="card">
-        <h2>Empresas recientes</h2>
-
-        <?php if (empty($dashboard['recentCompanies'])): ?>
-            <p>No hay empresas recientes.</p>
-        <?php else: ?>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Empresa</th>
-                        <th>Sector</th>
-                        <th>Estado</th>
                         <th>Alta</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($dashboard['recentCompanies'] as $company): ?>
-                        <tr>
-                            <td>
-                                <a href="/companies/<?= $company['id'] ?>">
-                                    <?= htmlspecialchars($company['name'] ?? '-') ?>
-                                </a>
-                            </td>
-                            <td><?= htmlspecialchars($company['sector'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($company['status'] ?? '-') ?></td>
-                            <td><?= htmlspecialchars($company['created_at'] ?? '-') ?></td>
-                        </tr>
+                    <?php foreach ($leads as $lead): ?>
+                    <tr onclick="location='./leads/<?= $lead['id'] ?>'" style="cursor:pointer">
+                        <td>
+                            <div class="db-lead-name"><?= htmlspecialchars($lead['company_name'] ?: $lead['full_name']) ?></div>
+                            <?php if ($lead['company_name'] && $lead['full_name']): ?>
+                            <div class="db-lead-sub"><?= htmlspecialchars($lead['full_name']) ?></div>
+                            <?php endif; ?>
+                        </td>
+                        <td><?= statusBadge($lead['status'] ?? 'nuevo') ?></td>
+                        <td><?= priorityDot($lead['priority'] ?? 'media') ?> <?= ucfirst($lead['priority'] ?? 'media') ?></td>
+                        <td class="db-muted"><?= date('d/m/y', strtotime($lead['created_at'])) ?></td>
+                    </tr>
                     <?php endforeach; ?>
                 </tbody>
             </table>
-        <?php endif; ?>
-    </div>
+            <?php endif; ?>
+        </div>
 
-    <div class="card">
-        <h2>Actividad reciente</h2>
-
-        <?php if (empty($dashboard['recentActivity'])): ?>
-            <p>No hay actividad reciente.</p>
-        <?php else: ?>
-            <ul class="activity-list">
-                <?php foreach ($dashboard['recentActivity'] as $item): ?>
-                    <li>
-                        <strong><?= htmlspecialchars($item['description'] ?? '') ?></strong>
-                        <br>
-                        <small><?= htmlspecialchars($item['created_at'] ?? '') ?></small>
-                    </li>
+        <!-- Tareas pendientes -->
+        <div class="db-panel">
+            <div class="db-panel-head">
+                <span class="db-panel-title">Próximas tareas</span>
+                <a href="/tasks" class="db-panel-link">Ver todas →</a>
+            </div>
+            <?php if (empty($tasks)): ?>
+                <div class="db-empty">Sin tareas pendientes</div>
+            <?php else: ?>
+            <ul class="db-task-list">
+                <?php foreach ($tasks as $t):
+                    $overdue = !empty($t['due_date']) && strtotime($t['due_date']) < time() && $t['status'] !== 'completada';
+                ?>
+                <li class="db-task <?= $overdue ? 'db-task--overdue' : '' ?>">
+                    <div class="db-task-left">
+                        <?= priorityDot($t['priority'] ?? 'media') ?>
+                        <div>
+                            <div class="db-task-title"><?= htmlspecialchars($t['title']) ?></div>
+                            <div class="db-task-meta"><?= ucfirst($t['entity_type'] ?? '') ?> #<?= $t['entity_id'] ?></div>
+                        </div>
+                    </div>
+                    <div class="db-task-date <?= $overdue ? 'db-task-date--overdue' : '' ?>">
+                        <?= !empty($t['due_date']) ? date('d/m', strtotime($t['due_date'])) : '—' ?>
+                    </div>
+                </li>
                 <?php endforeach; ?>
             </ul>
-        <?php endif; ?>
-    </div>
+            <?php endif; ?>
+        </div>
 
-</section>
+        <!-- Empresas recientes -->
+        <div class="db-panel">
+            <div class="db-panel-head">
+                <span class="db-panel-title">Empresas recientes</span>
+                <a href="/companies" class="db-panel-link">Ver todas →</a>
+            </div>
+            <?php if (empty($companies)): ?>
+                <div class="db-empty">Sin empresas recientes</div>
+            <?php else: ?>
+            <ul class="db-company-list">
+                <?php foreach ($companies as $co): ?>
+                <li class="db-company" onclick="location='./companies/<?= $co['id'] ?>'" style="cursor:pointer">
+                    <div class="db-company-avatar"><?= strtoupper(substr($co['name'], 0, 1)) ?></div>
+                    <div class="db-company-info">
+                        <div class="db-company-name"><?= htmlspecialchars($co['name']) ?></div>
+                        <div class="db-company-meta"><?= htmlspecialchars($co['sector'] ?? '—') ?></div>
+                    </div>
+                    <?= statusBadge($co['status'] ?? 'prospecto') ?>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+            <?php endif; ?>
+        </div>
+
+        <!-- Actividad reciente -->
+        <div class="db-panel">
+            <div class="db-panel-head">
+                <span class="db-panel-title">Actividad reciente</span>
+            </div>
+            <?php if (empty($activity)): ?>
+                <div class="db-empty">Sin actividad reciente</div>
+            <?php else: ?>
+            <ul class="db-activity-list">
+                <?php foreach ($activity as $a): ?>
+                <li class="db-activity">
+                    <div class="db-activity-icon"><?= entityIcon($a['entity_type'] ?? '') ?></div>
+                    <div class="db-activity-body">
+                        <div class="db-activity-desc"><?= htmlspecialchars($a['description'] ?? '') ?></div>
+                        <div class="db-activity-time"><?= timeAgo($a['created_at']) ?></div>
+                    </div>
+                </li>
+                <?php endforeach; ?>
+            </ul>
+            <?php endif; ?>
+        </div>
+
+    </div><!-- /db-grid -->
+
+</div><!-- /db-wrap -->
