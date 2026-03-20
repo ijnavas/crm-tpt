@@ -70,9 +70,8 @@ button, input, select, textarea { font: inherit; }
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 16px 18px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
-    min-height: 90px;
 }
 
 .sidebar-logo-mark {
