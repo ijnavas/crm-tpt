@@ -67,11 +67,18 @@ final class UserService
         $dir = BASE_PATH . '/public/assets/img/';
         if (!is_dir($dir)) mkdir($dir, 0775, true);
 
-        // Nombre fijo para que siempre se sobreescriba
-        $name = 'logo-custom.' . $ext;
-        move_uploaded_file($file['tmp_name'], $dir . $name);
+        // Borrar logos anteriores para no acumular archivos
+        foreach (glob($dir . 'logo-custom.*') as $old) {
+            @unlink($old);
+        }
 
-        // Guardar ruta limpia sin query string
+        $name = 'logo-custom.' . $ext;
+        $dest = $dir . $name;
+
+        if (!move_uploaded_file($file['tmp_name'], $dest)) {
+            throw new \RuntimeException('No se pudo guardar el archivo. Verifica permisos del directorio.');
+        }
+
         $path = '/assets/img/' . $name;
         $this->repo->setSetting('logo_path', $path);
         return $path;
@@ -79,10 +86,7 @@ final class UserService
 
     public function getLogo(): ?string
     {
-        $path = $this->repo->getSetting('logo_path');
-        if (!$path) return null;
-        // Añadir cache-buster en tiempo de visualización, no en la BD
-        return $path . '?v=' . time();
+        return $this->repo->getSetting('logo_path');
     }
 
     public function isAdmin(int $id): bool

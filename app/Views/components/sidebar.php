@@ -4,16 +4,17 @@ function nav_active(string $path, string $currentPath): string {
     return str_starts_with($currentPath, $path) ? 'active' : '';
 }
 
-// Obtener logo personalizado si existe
 $logoPath = null;
 try {
     $db = \App\Core\Database::connection();
     $stmt = $db->prepare("SELECT value FROM settings WHERE key_name = 'logo_path' LIMIT 1");
     $stmt->execute();
     $row = $stmt->fetch();
-    $rawPath = $row ? $row['value'] : null;
-    // Limpiar posible query string viejo y añadir cache-buster fresco
-    $logoPath = $rawPath ? strtok($rawPath, '?') . '?v=' . filemtime(BASE_PATH . '/public' . strtok($rawPath, '?')) : null;
+    if ($row && !empty($row['value'])) {
+        $cleanPath = strtok($row['value'], '?');
+        $fullPath  = BASE_PATH . '/public' . $cleanPath;
+        $logoPath  = file_exists($fullPath) ? $cleanPath . '?v=' . filemtime($fullPath) : null;
+    }
 } catch (\Throwable $e) {
     $logoPath = null;
 }
@@ -27,14 +28,8 @@ try {
     <div class="sidebar-brand">
         <?php if ($logoPath): ?>
             <img src="<?= htmlspecialchars($logoPath) ?>"
-                 alt=""
-                 id="sidebar-logo-img"
-                 style="max-height:40px;max-width:150px;width:auto;object-fit:contain;display:block"
-                 onerror="this.style.display='none';document.getElementById('sidebar-logo-fallback').style.display='flex'">
-            <div id="sidebar-logo-fallback" style="display:none;align-items:center;gap:12px">
-                <div class="sidebar-logo-mark">CRM</div>
-                <div class="sidebar-logo-text"><strong>TPT</strong><span>Empleo</span></div>
-            </div>
+                 alt="Logo"
+                 style="max-height:40px;max-width:150px;width:auto;object-fit:contain;display:block">
         <?php else: ?>
             <div class="sidebar-logo-mark">CRM</div>
             <div class="sidebar-logo-text">
