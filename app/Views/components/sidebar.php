@@ -4,20 +4,7 @@ function nav_active(string $path, string $currentPath): string {
     return str_starts_with($currentPath, $path) ? 'active' : '';
 }
 
-$logoPath = null;
-try {
-    $db = \App\Core\Database::connection();
-    $stmt = $db->prepare("SELECT value FROM settings WHERE key_name = 'logo_path' LIMIT 1");
-    $stmt->execute();
-    $row = $stmt->fetch();
-    if ($row && !empty($row['value'])) {
-        $cleanPath = strtok($row['value'], '?');
-        $fullPath  = BASE_PATH . '/public' . $cleanPath;
-        $logoPath  = file_exists($fullPath) ? $cleanPath . '?v=' . filemtime($fullPath) : null;
-    }
-} catch (\Throwable $e) {
-    $logoPath = null;
-}
+
 ?>
 
 <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
@@ -26,17 +13,9 @@ try {
     <button class="sidebar-close" onclick="closeSidebar()">✕</button>
 
     <div class="sidebar-brand">
-        <?php if ($logoPath): ?>
-            <img src="<?= htmlspecialchars($logoPath) ?>"
-                 alt="Logo"
-                 style="max-height:40px;max-width:150px;width:auto;object-fit:contain;display:block">
-        <?php else: ?>
-            <div class="sidebar-logo-mark">CRM</div>
-            <div class="sidebar-logo-text">
-                <strong>TPT</strong>
-                <span>Empleo</span>
-            </div>
-        <?php endif; ?>
+        <img src="https://tptempleo.es/wp-content/uploads/2023/05/logo1.png"
+             alt="TPT Empleo"
+             style="max-height:40px;max-width:160px;width:auto;object-fit:contain;display:block">
     </div>
 
     <nav class="sidebar-nav">
