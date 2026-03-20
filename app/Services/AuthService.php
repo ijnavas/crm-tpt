@@ -13,27 +13,23 @@ final class AuthService
         $db = Database::connection();
 
         $stmt = $db->prepare('
-            SELECT *
-            FROM users
-            WHERE email = :email
-              AND status = :status
+            SELECT u.*, r.name AS role_name
+            FROM users u
+            JOIN roles r ON r.id = u.role_id
+            WHERE u.email = :email
+              AND u.status = :status
             LIMIT 1
         ');
 
         $stmt->execute([
-            'email' => $email,
+            'email'  => $email,
             'status' => 'activo',
         ]);
 
         $user = $stmt->fetch();
 
-        if (!$user) {
-            return false;
-        }
-
-        if (!password_verify($password, $user['password_hash'])) {
-            return false;
-        }
+        if (!$user) return false;
+        if (!password_verify($password, $user['password_hash'])) return false;
 
         Auth::login($user);
         return true;
