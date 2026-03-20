@@ -28,11 +28,13 @@ final class TaskController extends Controller
     {
         $this->guard();
 
-        $tasks = $this->service->getAll();
+        $filters = Request::all();
+        $tasks = $this->service->getAll($filters);
 
         $this->view('tasks/index', [
-            'title' => 'Tareas',
-            'tasks' => $tasks
+            'title'   => 'Tareas',
+            'tasks'   => $tasks,
+            'filters' => $filters,
         ]);
     }
 

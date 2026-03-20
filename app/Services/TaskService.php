@@ -14,9 +14,9 @@ final class TaskService
         $this->repo = new TaskRepository();
     }
 
-    public function getAll(): array
+    public function getAll(array $filters = []): array
     {
-        return $this->repo->getAll();
+        return $this->repo->getAll($filters);
     }
 
     public function getById(int $id): array

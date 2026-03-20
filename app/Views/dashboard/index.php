@@ -96,7 +96,7 @@ $tContacts = trend($kpis['contacts_week'], $kpis['contacts_week_prev']);
         <div class="db-kpi-icon db-kpi-icon--blue">👤</div>
         <div class="db-kpi-lbl">Leads de la semana</div>
       </div>
-      <div class="db-kpi-num"><?= $kpis['leads_week'] ?></div>
+      <a href="/leads?period=week" class="db-kpi-num" style="text-decoration:none;color:inherit"><?= $kpis['leads_week'] ?></a>
       <div class="db-kpi-trend <?= $tLeads['up'] ? 'db-kpi-trend--up' : 'db-kpi-trend--down' ?>">
         <?= $tLeads['up'] ? '▲' : '▼' ?> <?= $tLeads['pct'] ?>%
         <span>desde la semana pasada</span>
@@ -108,7 +108,7 @@ $tContacts = trend($kpis['contacts_week'], $kpis['contacts_week_prev']);
         <div class="db-kpi-icon db-kpi-icon--green">📞</div>
         <div class="db-kpi-lbl">Contactos en la semana</div>
       </div>
-      <div class="db-kpi-num"><?= $kpis['contacts_week'] ?></div>
+      <a href="/contacts?period=week" class="db-kpi-num" style="text-decoration:none;color:inherit"><?= $kpis['contacts_week'] ?></a>
       <div class="db-kpi-trend <?= $tContacts['up'] ? 'db-kpi-trend--up' : 'db-kpi-trend--down' ?>">
         <?= $tContacts['up'] ? '▲' : '▼' ?> <?= $tContacts['pct'] ?>%
         <span>desde la semana pasada</span>
@@ -120,7 +120,7 @@ $tContacts = trend($kpis['contacts_week'], $kpis['contacts_week_prev']);
         <div class="db-kpi-icon db-kpi-icon--gray">🏢</div>
         <div class="db-kpi-lbl">Empresas activas</div>
       </div>
-      <div class="db-kpi-num"><?= $kpis['active_companies'] ?></div>
+      <a href="/companies?status=activa" class="db-kpi-num" style="text-decoration:none;color:inherit"><?= $kpis['active_companies'] ?></a>
       <div class="db-kpi-trend db-kpi-trend--up">
         <?= $kpis['converted_leads'] ?> <span>leads convertidos en total</span>
       </div>

@@ -36,6 +36,14 @@ final class LeadRepository
             $params['priority'] = $filters['priority'];
         }
 
+        if (!empty($filters['period'])) {
+            if ($filters['period'] === 'week') {
+                $where[] = 'YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)';
+            } elseif ($filters['period'] === 'today') {
+                $where[] = 'DATE(created_at) = CURDATE()';
+            }
+        }
+
         $sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $stmt = $this->db->prepare("SELECT * FROM leads $sqlWhere ORDER BY created_at DESC LIMIT 50");

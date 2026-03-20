@@ -18,14 +18,32 @@ final class ContactRepository
 
     public function paginate(array $filters): array
     {
-        $stmt = $this->db->query("
+        $where = [];
+        $params = [];
+
+        if (!empty($filters['period']) && $filters['period'] === 'week') {
+            $where[] = 'YEARWEEK(cc.created_at, 1) = YEARWEEK(CURDATE(), 1)';
+        }
+
+        if (!empty($filters['q'])) {
+            $where[] = '(cc.full_name LIKE :q OR cc.email LIKE :q OR c.name LIKE :q)';
+            $params['q'] = '%' . $filters['q'] . '%';
+        }
+
+        $sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $stmt = $this->db->prepare("
             SELECT cc.*, c.name AS company_name
             FROM company_contacts cc
-            INNER JOIN companies c ON c.id = cc.company_id
+            LEFT JOIN companies c ON c.id = cc.company_id
+            $sqlWhere
             ORDER BY cc.created_at DESC
             LIMIT 50
         ");
-
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->execute();
         $rows = $stmt->fetchAll();
 
         return [

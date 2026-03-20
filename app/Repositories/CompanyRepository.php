@@ -18,7 +18,29 @@ final class CompanyRepository
 
     public function paginate(array $filters): array
     {
-        $stmt = $this->db->query("SELECT * FROM companies ORDER BY created_at DESC LIMIT 50");
+        $where = [];
+        $params = [];
+
+        if (!empty($filters['status'])) {
+            $where[] = 'status = :status';
+            $params['status'] = $filters['status'];
+        }
+
+        if (!empty($filters['period']) && $filters['period'] === 'week') {
+            $where[] = 'YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)';
+        }
+
+        if (!empty($filters['q'])) {
+            $where[] = '(name LIKE :q OR email LIKE :q OR city LIKE :q)';
+            $params['q'] = '%' . $filters['q'] . '%';
+        }
+
+        $sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $stmt = $this->db->prepare("SELECT * FROM companies $sqlWhere ORDER BY created_at DESC LIMIT 50");
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->execute();
         $rows = $stmt->fetchAll();
 
         return [

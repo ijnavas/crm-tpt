@@ -16,17 +16,38 @@ final class TaskRepository
         $this->db = Database::connection();
     }
 
-    public function getAll(): array
+    public function getAll(array $filters = []): array
     {
-        $stmt = $this->db->query("
-            SELECT *
-            FROM tasks
+        $where = [];
+        $params = [];
+
+        if (!empty($filters['status'])) {
+            if ($filters['status'] === 'pendiente') {
+                $where[] = "status IN ('pendiente','en_curso')";
+            } elseif ($filters['status'] === 'vencida') {
+                $where[] = "status <> 'completada' AND due_date IS NOT NULL AND due_date < NOW()";
+            } else {
+                $where[] = 'status = :status';
+                $params['status'] = $filters['status'];
+            }
+        }
+
+        if (!empty($filters['period']) && $filters['period'] === 'week') {
+            $where[] = 'YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)';
+        }
+
+        $sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $stmt = $this->db->prepare("
+            SELECT * FROM tasks $sqlWhere
             ORDER BY
                 CASE WHEN due_date IS NULL THEN 1 ELSE 0 END,
                 due_date ASC,
                 id DESC
         ");
-
+        foreach ($params as $key => $value) {
+            $stmt->bindValue(':' . $key, $value);
+        }
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 

@@ -6,6 +6,16 @@
     <a href="/leads/create" class="btn btn-primary">Nuevo lead</a>
 </section>
 
+<?php if (!empty($filters['period']) || !empty($filters['status'])): ?>
+<div style="display:flex;align-items:center;gap:10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:10px 16px;margin-bottom:16px;font-size:13px;color:#1d4ed8">
+    🔍 Mostrando: <?php
+        if (($filters['period'] ?? '') === 'week') echo 'leads de esta semana';
+        elseif (($filters['period'] ?? '') === 'today') echo 'leads de hoy';
+        elseif (!empty($filters['status'])) echo 'estado: ' . htmlspecialchars($filters['status']);
+    ?>
+    &nbsp;·&nbsp; <a href="/leads" style="color:#1d4ed8;font-weight:600">Limpiar filtro</a>
+</div>
+<?php endif; ?>
 <?php require app_path('Views/leads/partials/filters.php'); ?>
 
 <section class="card">
