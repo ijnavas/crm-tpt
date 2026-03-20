@@ -1,6 +1,14 @@
-<?php $user = \App\Core\Auth::user(); ?>
+<?php
+$user = \App\Core\Auth::user();
+$currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+function mobile_active(string $path, string $current): string {
+    return str_starts_with($current, $path) ? 'active' : '';
+}
+?>
 
 <header class="topbar">
+    <button class="topbar-menu-btn" onclick="openSidebar()">☰</button>
+
     <div class="topbar-search" id="search-wrapper">
         <input
             type="text"
@@ -11,8 +19,8 @@
     </div>
 
     <div class="topbar-actions">
-        <button class="topbar-btn">Filtrar</button>
-        <button class="topbar-btn">Exportar</button>
+        <button class="topbar-btn hide-mobile">Filtrar</button>
+        <button class="topbar-btn hide-mobile">Exportar</button>
 
         <div class="topbar-user">
             <div class="topbar-avatar">
@@ -29,7 +37,31 @@
     </div>
 </header>
 
-<!-- Dropdown fuera del topbar, se posiciona via JS pegado al input -->
+<!-- Navbar inferior (solo móvil) -->
+<nav class="mobile-nav">
+    <a href="/dashboard" class="mobile-nav-item <?= mobile_active('/dashboard', $currentPath) ?>">
+        <span class="mobile-nav-icon">⊞</span>
+        Inicio
+    </a>
+    <a href="/leads" class="mobile-nav-item <?= mobile_active('/leads', $currentPath) ?>">
+        <span class="mobile-nav-icon">◈</span>
+        Leads
+    </a>
+    <a href="/companies" class="mobile-nav-item <?= mobile_active('/companies', $currentPath) ?>">
+        <span class="mobile-nav-icon">⬡</span>
+        Empresas
+    </a>
+    <a href="/contacts" class="mobile-nav-item <?= mobile_active('/contacts', $currentPath) ?>">
+        <span class="mobile-nav-icon">◎</span>
+        Contactos
+    </a>
+    <a href="/tasks" class="mobile-nav-item <?= mobile_active('/tasks', $currentPath) ?>">
+        <span class="mobile-nav-icon">◻</span>
+        Tareas
+    </a>
+</nav>
+
+<!-- Dropdown búsqueda -->
 <div class="search-dropdown" id="search-dropdown"></div>
 
 <script>
@@ -41,23 +73,12 @@
 
     function positionDropdown() {
         const rect = input.getBoundingClientRect();
-        // Sin gap: top = bottom del input exacto (no +6px)
         dropdown.style.top   = rect.bottom + 'px';
         dropdown.style.left  = rect.left + 'px';
         dropdown.style.width = rect.width + 'px';
     }
-
-    function open() {
-        positionDropdown();
-        wrapper.classList.add('is-open');
-        dropdown.classList.add('open');
-    }
-
-    function close() {
-        dropdown.innerHTML = '';
-        dropdown.classList.remove('open');
-        wrapper.classList.remove('is-open');
-    }
+    function open() { positionDropdown(); wrapper.classList.add('is-open'); dropdown.classList.add('open'); }
+    function close() { dropdown.innerHTML = ''; dropdown.classList.remove('open'); wrapper.classList.remove('is-open'); }
 
     input.addEventListener('input', function () {
         clearTimeout(timer);
@@ -65,107 +86,60 @@
         if (q.length < 2) { close(); return; }
         timer = setTimeout(() => fetchResults(q), 220);
     });
-
     input.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { close(); }
+        if (e.key === 'Escape') close();
         if (e.key === 'ArrowDown') { focusItem(0); e.preventDefault(); }
     });
-
-    window.addEventListener('resize', function () {
-        if (dropdown.classList.contains('open')) positionDropdown();
-    });
-
+    window.addEventListener('resize', () => { if (dropdown.classList.contains('open')) positionDropdown(); });
     document.addEventListener('click', function (e) {
-        if (!wrapper.contains(e.target) && !dropdown.contains(e.target)) {
-            close();
-        }
+        if (!wrapper.contains(e.target) && !dropdown.contains(e.target)) close();
     });
 
-    function focusItem(index) {
-        const items = dropdown.querySelectorAll('.search-item');
-        if (items[index]) items[index].focus();
-    }
+    function focusItem(i) { const items = dropdown.querySelectorAll('.search-item'); if (items[i]) items[i].focus(); }
 
     function fetchResults(q) {
-        fetch('/search?q=' + encodeURIComponent(q))
-            .then(r => r.json())
-            .then(data => renderResults(data))
-            .catch(() => {});
+        fetch('/search?q=' + encodeURIComponent(q)).then(r => r.json()).then(renderResults).catch(() => {});
     }
 
     function renderResults(data) {
         dropdown.innerHTML = '';
-        const total = (data.companies || []).length + (data.contacts || []).length;
+        const total = (data.companies||[]).length + (data.contacts||[]).length;
+        if (total === 0) { dropdown.innerHTML = '<div class="search-empty">Sin resultados</div>'; open(); return; }
 
-        if (total === 0) {
-            dropdown.innerHTML = '<div class="search-empty">Sin resultados</div>';
-            open();
-            return;
+        if ((data.companies||[]).length > 0) {
+            append('div', 'search-label', 'Empresas');
+            data.companies.forEach(c => {
+                const a = make('a', 'search-item', '/companies/' + c.id,
+                    '<span class="search-item-icon search-item-icon--company">E</span>' +
+                    '<span class="search-item-body"><strong>' + esc(c.name) + '</strong><small>' + esc(c.sector||'') + (c.city?' · '+esc(c.city):'') + '</small></span>' +
+                    '<span class="search-item-badge search-item-badge--' + esc(c.status||'') + '">' + esc(c.status||'') + '</span>');
+                addNav(a); dropdown.appendChild(a);
+            });
         }
-
-        if (data.companies && data.companies.length > 0) {
-            const label = document.createElement('div');
-            label.className = 'search-label';
-            label.textContent = 'Empresas';
-            dropdown.appendChild(label);
-            data.companies.forEach(c => dropdown.appendChild(makeCompanyItem(c)));
+        if ((data.contacts||[]).length > 0) {
+            append('div', 'search-label', 'Contactos');
+            data.contacts.forEach(c => {
+                const a = make('a', 'search-item', '/contacts/' + c.id,
+                    '<span class="search-item-icon search-item-icon--contact">' + esc((c.full_name||'C').charAt(0).toUpperCase()) + '</span>' +
+                    '<span class="search-item-body"><strong>' + esc(c.full_name) + '</strong><small>' + esc(c.job_title||'') + (c.company_name?' · '+esc(c.company_name):'') + '</small></span>');
+                addNav(a); dropdown.appendChild(a);
+            });
         }
-
-        if (data.contacts && data.contacts.length > 0) {
-            const label = document.createElement('div');
-            label.className = 'search-label';
-            label.textContent = 'Contactos';
-            dropdown.appendChild(label);
-            data.contacts.forEach(c => dropdown.appendChild(makeContactItem(c)));
-        }
-
         open();
     }
 
-    function makeCompanyItem(c) {
-        const a = document.createElement('a');
-        a.className = 'search-item';
-        a.href = '/companies/' + c.id;
-        a.tabIndex = 0;
-        a.innerHTML =
-            '<span class="search-item-icon search-item-icon--company">E</span>' +
-            '<span class="search-item-body">' +
-                '<strong>' + esc(c.name) + '</strong>' +
-                '<small>' + esc(c.sector || '') + (c.city ? ' · ' + esc(c.city) : '') + '</small>' +
-            '</span>' +
-            '<span class="search-item-badge search-item-badge--' + esc(c.status || '') + '">' + esc(c.status || '') + '</span>';
-        addKeyNav(a);
-        return a;
-    }
-
-    function makeContactItem(c) {
-        const a = document.createElement('a');
-        a.className = 'search-item';
-        a.href = '/contacts/' + c.id;
-        a.tabIndex = 0;
-        a.innerHTML =
-            '<span class="search-item-icon search-item-icon--contact">' + esc((c.full_name || 'C').charAt(0).toUpperCase()) + '</span>' +
-            '<span class="search-item-body">' +
-                '<strong>' + esc(c.full_name) + '</strong>' +
-                '<small>' + esc(c.job_title || '') + (c.company_name ? ' · ' + esc(c.company_name) : '') + '</small>' +
-            '</span>';
-        addKeyNav(a);
-        return a;
-    }
-
-    function addKeyNav(a) {
+    function append(tag, cls, text) { const el = document.createElement(tag); el.className = cls; el.textContent = text; dropdown.appendChild(el); }
+    function make(tag, cls, href, html) { const el = document.createElement(tag); el.className = cls; el.href = href; el.tabIndex = 0; el.innerHTML = html; return el; }
+    function addNav(a) {
         a.addEventListener('keydown', e => {
             const items = [...dropdown.querySelectorAll('.search-item')];
-            const idx = items.indexOf(a);
-            if (e.key === 'ArrowDown' && items[idx + 1]) { items[idx + 1].focus(); e.preventDefault(); }
-            if (e.key === 'ArrowUp')  { idx > 0 ? items[idx - 1].focus() : input.focus(); e.preventDefault(); }
-            if (e.key === 'Enter')    { window.location = a.href; }
-            if (e.key === 'Escape')   { close(); input.focus(); }
+            const i = items.indexOf(a);
+            if (e.key === 'ArrowDown' && items[i+1]) { items[i+1].focus(); e.preventDefault(); }
+            if (e.key === 'ArrowUp') { i > 0 ? items[i-1].focus() : input.focus(); e.preventDefault(); }
+            if (e.key === 'Enter') window.location = a.href;
+            if (e.key === 'Escape') { close(); input.focus(); }
         });
     }
-
-    function esc(str) {
-        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 })();
 </script>
