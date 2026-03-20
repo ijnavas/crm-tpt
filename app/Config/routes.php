@@ -8,6 +8,7 @@ use App\Controllers\CompanyController;
 use App\Controllers\ContactController;
 use App\Controllers\TaskController;
 use App\Controllers\SearchController;
+use App\Controllers\UserController;
 
 return [
     ['GET', '/', [AuthController::class, 'loginForm']],
@@ -51,5 +52,8 @@ return [
 ['POST', '/leads/{id}/convert', [LeadController::class, 'convert']],
 
 ['GET', '/search', [SearchController::class, 'search']],
+
+['GET', '/profile', [UserController::class, 'profile']],
+['POST', '/profile/update', [UserController::class, 'updateProfile']],
 
 ];

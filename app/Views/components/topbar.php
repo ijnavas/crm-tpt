@@ -10,54 +10,48 @@ function mobile_active(string $path, string $current): string {
     <button class="topbar-menu-btn" onclick="openSidebar()">☰</button>
 
     <div class="topbar-search" id="search-wrapper">
-        <input
-            type="text"
-            id="global-search"
-            placeholder="Buscar empresa o contacto..."
-            autocomplete="off"
-        >
+        <input type="text" id="global-search" placeholder="Buscar empresa o contacto..." autocomplete="off">
     </div>
 
     <div class="topbar-actions">
         <button class="topbar-btn hide-mobile">Filtrar</button>
         <button class="topbar-btn hide-mobile">Exportar</button>
 
-        <div class="topbar-user">
-            <div class="topbar-avatar">
-                <?= strtoupper(substr($user['first_name'] ?? 'U', 0, 1)) ?>
+        <a href="/profile" class="topbar-user" title="Mi perfil" style="text-decoration:none">
+            <div class="topbar-avatar" style="overflow:hidden">
+                <?php if (!empty($user['avatar'])): ?>
+                    <img src="<?= htmlspecialchars($user['avatar']) ?>" style="width:100%;height:100%;object-fit:cover" alt="">
+                <?php else: ?>
+                    <?= strtoupper(substr($user['first_name'] ?? 'U', 0, 1)) ?>
+                <?php endif; ?>
             </div>
             <div class="topbar-user-info">
                 <strong><?= htmlspecialchars(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '')) ?></strong>
                 <span><?= htmlspecialchars($user['email'] ?? '') ?></span>
             </div>
-            <form action="/logout" method="POST">
-                <button type="submit" class="topbar-logout">Salir</button>
-            </form>
-        </div>
+        </a>
+        <form action="/logout" method="POST">
+            <button type="submit" class="topbar-logout">Salir</button>
+        </form>
     </div>
 </header>
 
 <!-- Navbar inferior (solo móvil) -->
 <nav class="mobile-nav">
     <a href="/dashboard" class="mobile-nav-item <?= mobile_active('/dashboard', $currentPath) ?>">
-        <span class="mobile-nav-icon">⊞</span>
-        Inicio
+        <span class="mobile-nav-icon">⊞</span>Inicio
     </a>
     <a href="/leads" class="mobile-nav-item <?= mobile_active('/leads', $currentPath) ?>">
-        <span class="mobile-nav-icon">◈</span>
-        Leads
+        <span class="mobile-nav-icon">◈</span>Leads
     </a>
     <a href="/companies" class="mobile-nav-item <?= mobile_active('/companies', $currentPath) ?>">
-        <span class="mobile-nav-icon">⬡</span>
-        Empresas
+        <span class="mobile-nav-icon">⬡</span>Empresas
     </a>
     <a href="/contacts" class="mobile-nav-item <?= mobile_active('/contacts', $currentPath) ?>">
-        <span class="mobile-nav-icon">◎</span>
-        Contactos
+        <span class="mobile-nav-icon">◎</span>Contactos
     </a>
     <a href="/tasks" class="mobile-nav-item <?= mobile_active('/tasks', $currentPath) ?>">
-        <span class="mobile-nav-icon">◻</span>
-        Tareas
+        <span class="mobile-nav-icon">◻</span>Tareas
     </a>
 </nav>
 
@@ -96,50 +90,37 @@ function mobile_active(string $path, string $current): string {
     });
 
     function focusItem(i) { const items = dropdown.querySelectorAll('.search-item'); if (items[i]) items[i].focus(); }
-
     function fetchResults(q) {
         fetch('/search?q=' + encodeURIComponent(q)).then(r => r.json()).then(renderResults).catch(() => {});
     }
-
     function renderResults(data) {
         dropdown.innerHTML = '';
         const total = (data.companies||[]).length + (data.contacts||[]).length;
         if (total === 0) { dropdown.innerHTML = '<div class="search-empty">Sin resultados</div>'; open(); return; }
-
         if ((data.companies||[]).length > 0) {
-            append('div', 'search-label', 'Empresas');
+            append('div','search-label','Empresas');
             data.companies.forEach(c => {
-                const a = make('a', 'search-item', '/companies/' + c.id,
-                    '<span class="search-item-icon search-item-icon--company">E</span>' +
-                    '<span class="search-item-body"><strong>' + esc(c.name) + '</strong><small>' + esc(c.sector||'') + (c.city?' · '+esc(c.city):'') + '</small></span>' +
-                    '<span class="search-item-badge search-item-badge--' + esc(c.status||'') + '">' + esc(c.status||'') + '</span>');
+                const a = make('a','search-item','/companies/'+c.id,
+                    '<span class="search-item-icon search-item-icon--company">E</span>'+
+                    '<span class="search-item-body"><strong>'+esc(c.name)+'</strong><small>'+esc(c.sector||'')+(c.city?' · '+esc(c.city):'')+'</small></span>'+
+                    '<span class="search-item-badge search-item-badge--'+esc(c.status||'')+'">'+esc(c.status||'')+'</span>');
                 addNav(a); dropdown.appendChild(a);
             });
         }
         if ((data.contacts||[]).length > 0) {
-            append('div', 'search-label', 'Contactos');
+            append('div','search-label','Contactos');
             data.contacts.forEach(c => {
-                const a = make('a', 'search-item', '/contacts/' + c.id,
-                    '<span class="search-item-icon search-item-icon--contact">' + esc((c.full_name||'C').charAt(0).toUpperCase()) + '</span>' +
-                    '<span class="search-item-body"><strong>' + esc(c.full_name) + '</strong><small>' + esc(c.job_title||'') + (c.company_name?' · '+esc(c.company_name):'') + '</small></span>');
+                const a = make('a','search-item','/contacts/'+c.id,
+                    '<span class="search-item-icon search-item-icon--contact">'+esc((c.full_name||'C').charAt(0).toUpperCase())+'</span>'+
+                    '<span class="search-item-body"><strong>'+esc(c.full_name)+'</strong><small>'+esc(c.job_title||'')+(c.company_name?' · '+esc(c.company_name):'')+'</small></span>');
                 addNav(a); dropdown.appendChild(a);
             });
         }
         open();
     }
-
-    function append(tag, cls, text) { const el = document.createElement(tag); el.className = cls; el.textContent = text; dropdown.appendChild(el); }
-    function make(tag, cls, href, html) { const el = document.createElement(tag); el.className = cls; el.href = href; el.tabIndex = 0; el.innerHTML = html; return el; }
-    function addNav(a) {
-        a.addEventListener('keydown', e => {
-            const items = [...dropdown.querySelectorAll('.search-item')];
-            const i = items.indexOf(a);
-            if (e.key === 'ArrowDown' && items[i+1]) { items[i+1].focus(); e.preventDefault(); }
-            if (e.key === 'ArrowUp') { i > 0 ? items[i-1].focus() : input.focus(); e.preventDefault(); }
-            if (e.key === 'Enter') window.location = a.href;
-            if (e.key === 'Escape') { close(); input.focus(); }
-        });
-    }
-    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function append(tag,cls,text){const el=document.createElement(tag);el.className=cls;el.textContent=text;dropdown.appendChild(el);}
+    function make(tag,cls,href,html){const el=document.createElement(tag);el.className=cls;el.href=href;el.tabIndex=0;el.innerHTML=html;return el;}
+    function addNav(a){a.addEventListener('keydown',e=>{const items=[...dropdown.querySelectorAll('.search-item')];const i=items.indexOf(a);if(e.key==='ArrowDown'&&items[i+1]){items[i+1].focus();e.preventDefault();}if(e.key==='ArrowUp'){i>0?items[i-1].focus():input.focus();e.preventDefault();}if(e.key==='Enter')window.location=a.href;if(e.key==='Escape'){close();input.focus();}});}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 })();
 </script>
