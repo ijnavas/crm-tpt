@@ -5,7 +5,6 @@ namespace App\Services;
 
 use App\Repositories\UserRepository;
 use App\Core\Auth;
-use App\Core\Session;
 
 final class UserService
 {
@@ -24,7 +23,6 @@ final class UserService
     public function updateProfile(int $id, array $data): void
     {
         $this->repo->update($id, $data);
-        // Refrescar sesión con datos nuevos
         $updated = $this->repo->findById($id);
         Auth::login($updated);
     }
@@ -46,7 +44,7 @@ final class UserService
         if (!in_array($ext, $allowed)) throw new \RuntimeException('Formato no permitido');
         if ($file['size'] > 2 * 1024 * 1024) throw new \RuntimeException('Máximo 2MB');
 
-        $dir  = BASE_PATH . '/public/assets/img/avatars/';
+        $dir = BASE_PATH . '/public/assets/img/avatars/';
         if (!is_dir($dir)) mkdir($dir, 0775, true);
 
         $name = 'avatar_' . $id . '_' . time() . '.' . $ext;
@@ -54,7 +52,6 @@ final class UserService
 
         $path = '/assets/img/avatars/' . $name;
         $this->repo->updateAvatar($id, $path);
-
         $updated = $this->repo->findById($id);
         Auth::login($updated);
         return $path;
@@ -70,9 +67,11 @@ final class UserService
         $dir = BASE_PATH . '/public/assets/img/';
         if (!is_dir($dir)) mkdir($dir, 0775, true);
 
-        $name = 'logo-tpt.' . $ext;
+        // Nombre fijo para que siempre se sobreescriba
+        $name = 'logo-custom.' . $ext;
         move_uploaded_file($file['tmp_name'], $dir . $name);
 
+        // Guardar ruta limpia sin query string
         $path = '/assets/img/' . $name;
         $this->repo->setSetting('logo_path', $path);
         return $path;
@@ -80,7 +79,10 @@ final class UserService
 
     public function getLogo(): ?string
     {
-        return $this->repo->getSetting('logo_path');
+        $path = $this->repo->getSetting('logo_path');
+        if (!$path) return null;
+        // Añadir cache-buster en tiempo de visualización, no en la BD
+        return $path . '?v=' . time();
     }
 
     public function isAdmin(int $id): bool

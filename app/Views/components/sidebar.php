@@ -11,7 +11,9 @@ try {
     $stmt = $db->prepare("SELECT value FROM settings WHERE key_name = 'logo_path' LIMIT 1");
     $stmt->execute();
     $row = $stmt->fetch();
-    $logoPath = $row ? $row['value'] : null;
+    $rawPath = $row ? $row['value'] : null;
+    // Limpiar posible query string viejo y añadir cache-buster fresco
+    $logoPath = $rawPath ? strtok($rawPath, '?') . '?v=' . filemtime(BASE_PATH . '/public' . strtok($rawPath, '?')) : null;
 } catch (\Throwable $e) {
     $logoPath = null;
 }
@@ -25,8 +27,14 @@ try {
     <div class="sidebar-brand">
         <?php if ($logoPath): ?>
             <img src="<?= htmlspecialchars($logoPath) ?>"
-                 alt="Logo TPT"
-                 style="max-height:40px;max-width:140px;width:auto;object-fit:contain;border-radius:4px">
+                 alt=""
+                 id="sidebar-logo-img"
+                 style="max-height:40px;max-width:150px;width:auto;object-fit:contain;display:block"
+                 onerror="this.style.display='none';document.getElementById('sidebar-logo-fallback').style.display='flex'">
+            <div id="sidebar-logo-fallback" style="display:none;align-items:center;gap:12px">
+                <div class="sidebar-logo-mark">CRM</div>
+                <div class="sidebar-logo-text"><strong>TPT</strong><span>Empleo</span></div>
+            </div>
         <?php else: ?>
             <div class="sidebar-logo-mark">CRM</div>
             <div class="sidebar-logo-text">
