@@ -119,9 +119,9 @@ function entityIcon(string $type): string {
 .db-activity-icon{width:28px;height:28px;border-radius:7px;background:var(--bg-muted);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
 .db-activity-desc{font-size:12px;line-height:1.4}
 .db-activity-time{font-size:10px;color:var(--text-light);margin-top:3px}
-@media(max-width:1400px){.db-kpis{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:1100px){.db-grid{grid-template-columns:1fr 1fr}.db-panel--leads{grid-row:auto;grid-column:1/-1}}
-@media(max-width:768px){.db-kpis{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}.db-kpi{padding:14px 14px 12px}.db-kpi-value{font-size:26px}.db-grid{grid-template-columns:1fr}.db-panel--leads{grid-column:auto}.db-title{font-size:20px}.db-task-title{max-width:130px}}
+@media(max-width:1300px){.db-kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.db-grid{grid-template-columns:1fr 1fr}.db-panel--leads{grid-row:auto;grid-column:1/-1}}
+@media(max-width:600px){.db-kpis{grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}.db-kpi{padding:14px 14px 12px}.db-kpi-value{font-size:26px}.db-grid{grid-template-columns:1fr}.db-panel--leads{grid-column:auto}.db-title{font-size:20px}.db-task-title{max-width:130px}}
 @media(max-width:400px){.db-kpi-value{font-size:22px}}
 </style>
 

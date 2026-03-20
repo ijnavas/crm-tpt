@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,9 +5,8 @@
     <title><?= $title ?? 'CRM TPT'; ?></title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="/assets/css/app.css?v=<?= filemtime(dirname(__DIR__, 3) . '/public/assets/css/app.css') ?>">
-    <link rel="stylesheet" href="/assets/css/dashboard.css?v=<?= filemtime(dirname(__DIR__, 3) . '/public/assets/css/dashboard.css') ?>">
-    <link rel="stylesheet" href="/assets/css/leads.css?v=<?= filemtime(dirname(__DIR__, 3) . '/public/assets/css/leads.css') ?>">
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/leads.css">
 </head>
 <body>
     <div class="app-shell">

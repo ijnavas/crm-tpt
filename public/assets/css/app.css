@@ -412,7 +412,7 @@ button, input, select, textarea { font: inherit; }
 }
 
 /* Móvil */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     :root { --sidebar-w: 280px; }
 
     /* Sidebar se convierte en drawer lateral */
