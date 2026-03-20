@@ -22,8 +22,12 @@ final class CompanyRepository
         $params = [];
 
         if (!empty($filters['status'])) {
-            $where[] = 'status = :status';
-            $params['status'] = $filters['status'];
+            if ($filters['status'] === 'activa_prospecto') {
+                $where[] = "status IN ('activa', 'prospecto')";
+            } else {
+                $where[] = 'status = :status';
+                $params['status'] = $filters['status'];
+            }
         }
 
         if (!empty($filters['period']) && $filters['period'] === 'week') {

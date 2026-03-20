@@ -120,7 +120,7 @@ $tContacts = trend($kpis['contacts_week'], $kpis['contacts_week_prev']);
         <div class="db-kpi-icon db-kpi-icon--gray">🏢</div>
         <div class="db-kpi-lbl">Empresas activas</div>
       </div>
-      <a href="/companies?status=activa" class="db-kpi-num" style="text-decoration:none;color:inherit"><?= $kpis['active_companies'] ?></a>
+      <a href="/companies?status=activa_prospecto" class="db-kpi-num" style="text-decoration:none;color:inherit"><?= $kpis['active_companies'] ?></a>
       <div class="db-kpi-trend db-kpi-trend--up">
         <?= $kpis['converted_leads'] ?> <span>leads convertidos en total</span>
       </div>
