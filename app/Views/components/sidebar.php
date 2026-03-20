@@ -15,7 +15,7 @@ function nav_active(string $path, string $currentPath): string {
     <div class="sidebar-brand">
         <img src="https://tptempleo.es/wp-content/uploads/2023/05/logo1.png"
              alt="TPT Empleo"
-             style="max-height:64px;max-width:190px;width:auto;object-fit:contain;display:block">
+             style="width:100%;height:100%;object-fit:contain;display:block">
     </div>
 
     <nav class="sidebar-nav">

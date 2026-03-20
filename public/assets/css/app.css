@@ -69,9 +69,10 @@ button, input, select, textarea { font: inherit; }
 .sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 22px 18px;
+    justify-content: center;
+    padding: 16px 18px;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    min-height: 90px;
 }
 
 .sidebar-logo-mark {
