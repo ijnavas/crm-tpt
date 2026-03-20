@@ -50,8 +50,9 @@
     grid-template-columns: 1.6fr 1fr;
     grid-template-rows: auto auto;
     gap: 20px;
+    align-items: start;
 }
-.db-panel--leads { grid-row: 1 / 3; }
+.db-panel--leads { grid-row: 1 / 3; align-self: start; }
 
 /* ── Panel ── */
 .db-panel { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
