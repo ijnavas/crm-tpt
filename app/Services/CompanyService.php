@@ -39,8 +39,20 @@ final class CompanyService
         ];
     }
 
+    private function normalizeData(array $data): array
+    {
+        $fields = ['name', 'legal_name', 'sector', 'city', 'province', 'activity'];
+        foreach ($fields as $field) {
+            if (!empty($data[$field])) {
+                $data[$field] = ucfirst(strtolower(trim($data[$field])));
+            }
+        }
+        return $data;
+    }
+
     public function createCompany(array $data): int
     {
+        $data = $this->normalizeData($data);
         $id = $this->repo->insert($data);
         $this->repo->logActivity('company', $id, 'created', 'Empresa creada');
         return $id;
@@ -48,6 +60,7 @@ final class CompanyService
 
     public function updateCompany(int $id, array $data): void
     {
+        $data = $this->normalizeData($data);
         $this->repo->update($id, $data);
         $this->repo->logActivity('company', $id, 'updated', 'Empresa actualizada');
     }
