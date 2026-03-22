@@ -50,8 +50,19 @@ final class SearchController extends Controller
         $stmtK->execute(['q' => $like]);
         $contacts = $stmtK->fetchAll(PDO::FETCH_ASSOC);
 
+        // Buscar también leads para el autocompletado del filtro
+        $stmtL = $db->prepare("
+            SELECT id, full_name, company_name, status
+            FROM leads
+            WHERE full_name LIKE :q OR company_name LIKE :q OR email LIKE :q
+            ORDER BY created_at DESC
+            LIMIT 5
+        ");
+        $stmtL->execute(['q' => $like]);
+        $leads = $stmtL->fetchAll(PDO::FETCH_ASSOC);
+
         header('Content-Type: application/json');
-        echo json_encode(['companies' => $companies, 'contacts' => $contacts]);
+        echo json_encode(['companies' => $companies, 'contacts' => $contacts, 'leads' => $leads]);
         exit;
     }
 }
