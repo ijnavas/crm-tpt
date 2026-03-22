@@ -19,6 +19,11 @@ final class CompanyService
         return $this->repo->paginate($filters);
     }
 
+    public function getSectors(): array
+    {
+        return $this->repo->getSectors();
+    }
+
     public function getCompanyById(int $id): array
     {
         return $this->repo->find($id);

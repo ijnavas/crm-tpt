@@ -34,8 +34,13 @@ final class CompanyRepository
             $where[] = 'YEARWEEK(created_at, 1) = YEARWEEK(CURDATE(), 1)';
         }
 
+        if (!empty($filters['sector'])) {
+            $where[] = 'sector = :sector';
+            $params['sector'] = $filters['sector'];
+        }
+
         if (!empty($filters['q'])) {
-            $where[] = '(name LIKE :q OR email LIKE :q OR city LIKE :q)';
+            $where[] = '(name LIKE :q OR email LIKE :q OR city LIKE :q OR sector LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
         }
 
@@ -51,6 +56,16 @@ final class CompanyRepository
             'data' => $rows,
             'pagination' => ['total' => count($rows), 'page' => 1, 'per_page' => 50],
         ];
+    }
+
+    public function getSectors(): array
+    {
+        $stmt = $this->db->query("
+            SELECT DISTINCT sector FROM companies
+            WHERE sector IS NOT NULL AND sector != ''
+            ORDER BY sector ASC
+        ");
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
     }
 
     public function find(int $id): array

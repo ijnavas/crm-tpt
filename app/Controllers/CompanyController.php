@@ -32,9 +32,10 @@ final class CompanyController extends Controller
         $result = $this->service->paginateCompanies($filters);
 
         $this->view('companies/index', [
-            'title' => 'Empresas',
+            'title'     => 'Empresas',
             'companies' => $result['data'],
-            'filters' => $filters,
+            'filters'   => $filters,
+            'sectors'   => $this->service->getSectors(),
         ]);
     }
 
