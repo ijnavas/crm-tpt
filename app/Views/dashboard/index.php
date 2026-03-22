@@ -183,11 +183,11 @@ $tContacts = trend($kpis['contacts_week'], $kpis['contacts_week_prev']);
       <div class="db-tasks-split">
         <div class="db-tasks-stat">
           <div class="db-tasks-stat-lbl">Pendientes</div>
-          <div class="db-tasks-stat-num db-tasks-stat-num--blue"><?= $kpis['pending_tasks'] ?></div>
+          <a href="/tasks?status=pendiente" class="db-tasks-stat-num db-tasks-stat-num--blue" style="text-decoration:none"><?= $kpis['pending_tasks'] ?></a>
         </div>
         <div class="db-tasks-stat">
           <div class="db-tasks-stat-lbl">Finalizadas</div>
-          <div class="db-tasks-stat-num db-tasks-stat-num--green"><?= $kpis['completed_tasks'] ?></div>
+          <a href="/tasks?status=completada" class="db-tasks-stat-num db-tasks-stat-num--green" style="text-decoration:none"><?= $kpis['completed_tasks'] ?></a>
         </div>
       </div>
 
