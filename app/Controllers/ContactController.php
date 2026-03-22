@@ -32,9 +32,10 @@ final class ContactController extends Controller
         $result = $this->service->paginateContacts($filters);
 
         $this->view('contacts/index', [
-            'title'    => 'Contactos',
-            'contacts' => $result['data'],
-            'filters'  => $filters,
+            'title'      => 'Contactos',
+            'contacts'   => $result['data'],
+            'filters'    => $filters,
+            'jobTitles'  => $this->service->getJobTitles(),
         ]);
     }
 

@@ -168,6 +168,17 @@ final class ContactRepository
         return $stmt->fetchAll();
     }
 
+    public function getJobTitles(): array
+    {
+        $stmt = $this->db->query("
+            SELECT DISTINCT job_title
+            FROM company_contacts
+            WHERE job_title IS NOT NULL AND job_title != ''
+            ORDER BY job_title ASC
+        ");
+        return $stmt->fetchAll(\PDO::FETCH_COLUMN);
+    }
+
     public function getTasks(int $contactId): array
     {
         $stmt = $this->db->prepare("

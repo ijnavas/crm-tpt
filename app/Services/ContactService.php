@@ -19,6 +19,11 @@ final class ContactService
         return $this->repo->paginate($filters);
     }
 
+    public function getJobTitles(): array
+    {
+        return $this->repo->getJobTitles();
+    }
+
     public function getContactById(int $id): array
     {
         return $this->repo->find($id);

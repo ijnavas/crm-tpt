@@ -25,9 +25,14 @@
             <?php endforeach; ?>
         </select>
 
-        <input type="text" name="job_title" class="lf-input" style="max-width:180px"
-            placeholder="Cargo..."
-            value="<?= htmlspecialchars($filters['job_title'] ?? '') ?>">
+        <select name="job_title" class="lf-select" onchange="this.form.submit()">
+            <option value="">Todos los cargos</option>
+            <?php foreach ($jobTitles as $jt): ?>
+                <option value="<?= htmlspecialchars($jt) ?>" <?= (($filters['job_title'] ?? '') === $jt) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars(ucfirst(strtolower($jt))) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
 
         <button type="submit" class="lf-btn-search">Buscar</button>
 
