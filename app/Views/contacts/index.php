@@ -25,9 +25,13 @@
             <?php endforeach; ?>
         </select>
 
+        <input type="text" name="job_title" class="lf-input" style="max-width:180px"
+            placeholder="Cargo..."
+            value="<?= htmlspecialchars($filters['job_title'] ?? '') ?>">
+
         <button type="submit" class="lf-btn-search">Buscar</button>
 
-        <?php if (!empty($filters['q']) || !empty($filters['status']) || !empty($filters['period'])): ?>
+        <?php if (!empty($filters['q']) || !empty($filters['status']) || !empty($filters['period']) || !empty($filters['job_title'])): ?>
             <a href="/contacts" class="lf-btn-clear">✕ Limpiar</a>
         <?php endif; ?>
     </form>

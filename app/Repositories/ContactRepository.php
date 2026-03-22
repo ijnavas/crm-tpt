@@ -25,8 +25,18 @@ final class ContactRepository
             $where[] = 'YEARWEEK(cc.created_at, 1) = YEARWEEK(CURDATE(), 1)';
         }
 
+        if (!empty($filters['status'])) {
+            $where[] = 'cc.status = :status';
+            $params['status'] = $filters['status'];
+        }
+
+        if (!empty($filters['job_title'])) {
+            $where[] = 'cc.job_title LIKE :job_title';
+            $params['job_title'] = '%' . $filters['job_title'] . '%';
+        }
+
         if (!empty($filters['q'])) {
-            $where[] = '(cc.full_name LIKE :q OR cc.email LIKE :q OR c.name LIKE :q)';
+            $where[] = '(cc.full_name LIKE :q OR cc.email LIKE :q OR c.name LIKE :q OR cc.job_title LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
         }
 
