@@ -196,6 +196,19 @@ final class LeadRepository
         ]);
     }
 
+    public function getTasks(int $leadId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT t.*, CONCAT(u.first_name,' ',u.last_name) AS user_name
+            FROM tasks t
+            LEFT JOIN users u ON u.id = t.assigned_user_id
+            WHERE t.entity_type = 'lead' AND t.entity_id = :id
+            ORDER BY t.due_date ASC, t.id DESC
+        ");
+        $stmt->execute(['id' => $leadId]);
+        return $stmt->fetchAll();
+    }
+
     public function getNotes(int $leadId): array
     {
         $stmt = $this->db->prepare('
