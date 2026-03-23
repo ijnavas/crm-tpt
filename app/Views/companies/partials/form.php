@@ -38,6 +38,36 @@
     </div>
 
     <div class="form-group">
+        <label>Ciudad</label>
+        <input type="text" name="city" class="autocap"
+               value="<?= htmlspecialchars($company['city'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
+        <label>Provincia</label>
+        <input type="text" name="province" class="autocap"
+               value="<?= htmlspecialchars($company['province'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
+        <label>Dirección</label>
+        <input type="text" name="address" class="autocap"
+               value="<?= htmlspecialchars($company['address'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
+        <label>Código postal</label>
+        <input type="text" name="postal_code"
+               value="<?= htmlspecialchars($company['postal_code'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
+        <label>Web</label>
+        <input type="text" name="website"
+               value="<?= htmlspecialchars($company['website'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
         <label>Estado</label>
         <select name="status">
             <?php foreach ($catalogs['statuses'] as $status): ?>
