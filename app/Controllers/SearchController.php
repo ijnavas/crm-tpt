@@ -14,7 +14,7 @@ final class SearchController extends Controller
     {
         if (!Auth::check()) {
             header('Content-Type: application/json');
-            echo json_encode(['companies' => [], 'contacts' => []]);
+            echo json_encode(['companies' => [], 'contacts' => [], 'leads' => []]);
             exit;
         }
 
@@ -22,19 +22,18 @@ final class SearchController extends Controller
 
         if (strlen($q) < 2) {
             header('Content-Type: application/json');
-            echo json_encode(['companies' => [], 'contacts' => []]);
+            echo json_encode(['companies' => [], 'contacts' => [], 'leads' => []]);
             exit;
         }
 
-        $db = Database::connection();
+        $db   = Database::connection();
         $like = '%' . $q . '%';
 
         $stmtC = $db->prepare("
             SELECT id, name, sector, city, status
             FROM companies
             WHERE name LIKE :q OR sector LIKE :q OR city LIKE :q OR email LIKE :q
-            ORDER BY name ASC
-            LIMIT 6
+            ORDER BY name ASC LIMIT 6
         ");
         $stmtC->execute(['q' => $like]);
         $companies = $stmtC->fetchAll(PDO::FETCH_ASSOC);
@@ -44,25 +43,41 @@ final class SearchController extends Controller
             FROM company_contacts cc
             LEFT JOIN companies c ON c.id = cc.company_id
             WHERE cc.full_name LIKE :q OR cc.email LIKE :q OR cc.job_title LIKE :q OR c.name LIKE :q
-            ORDER BY cc.full_name ASC
-            LIMIT 6
+            ORDER BY cc.full_name ASC LIMIT 6
         ");
         $stmtK->execute(['q' => $like]);
         $contacts = $stmtK->fetchAll(PDO::FETCH_ASSOC);
 
-        // Buscar también leads para el autocompletado del filtro
         $stmtL = $db->prepare("
             SELECT id, full_name, company_name, status
             FROM leads
             WHERE full_name LIKE :q OR company_name LIKE :q OR email LIKE :q
-            ORDER BY created_at DESC
-            LIMIT 5
+            ORDER BY created_at DESC LIMIT 5
         ");
         $stmtL->execute(['q' => $like]);
         $leads = $stmtL->fetchAll(PDO::FETCH_ASSOC);
 
         header('Content-Type: application/json');
         echo json_encode(['companies' => $companies, 'contacts' => $contacts, 'leads' => $leads]);
+        exit;
+    }
+
+    public function entities(): void
+    {
+        if (!Auth::check()) { echo json_encode([]); exit; }
+
+        $type = trim((string) ($_GET['type'] ?? 'company'));
+        $db   = Database::connection();
+
+        $rows = match($type) {
+            'company' => $db->query("SELECT id, name FROM companies ORDER BY name ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC),
+            'lead'    => $db->query("SELECT id, COALESCE(company_name, full_name) AS name FROM leads ORDER BY name ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC),
+            'contact' => $db->query("SELECT id, full_name AS name FROM company_contacts ORDER BY full_name ASC LIMIT 100")->fetchAll(PDO::FETCH_ASSOC),
+            default   => [],
+        };
+
+        header('Content-Type: application/json');
+        echo json_encode($rows);
         exit;
     }
 }

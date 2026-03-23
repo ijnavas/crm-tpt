@@ -52,6 +52,7 @@ return [
 ['POST', '/leads/{id}/convert', [LeadController::class, 'convert']],
 
 ['GET', '/search', [SearchController::class, 'search']],
+['GET', '/search/entities', [SearchController::class, 'entities']],
 
 ['GET', '/profile', [UserController::class, 'profile']],
 ['POST', '/profile/update', [UserController::class, 'updateProfile']],
