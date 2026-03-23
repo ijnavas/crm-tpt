@@ -71,6 +71,31 @@ final class ContractService
         return '/assets/docs/' . $name;
     }
 
+    public function getFilterCatalogs(): array
+    {
+        return [
+            'companies'     => $this->repo->getCompaniesWithContracts(),
+            'service_types' => [
+                'limpieza'            => 'Limpieza',
+                'mantenimiento'       => 'Mantenimiento',
+                'jardineria'          => 'Jardinería',
+                'logistica'           => 'Logística',
+                'administracion'      => 'Administración',
+                'atencion_al_cliente' => 'Atención al cliente',
+                'produccion'          => 'Producción',
+                'hosteleria'          => 'Hostelería',
+                'otro'                => 'Otro',
+            ],
+            'statuses' => [
+                'activo'     => 'Activo',
+                'renovado'   => 'Renovado',
+                'pausado'    => 'Pausado',
+                'finalizado' => 'Finalizado',
+                'cancelado'  => 'Cancelado',
+            ],
+        ];
+    }
+
     public function getKpis(): array
     {
         return $this->repo->getKpis();
