@@ -10,6 +10,7 @@ use App\Controllers\TaskController;
 use App\Controllers\SearchController;
 use App\Controllers\UserController;
 use App\Controllers\AdminController;
+use App\Controllers\ContractController;
 
 return [
     ['GET', '/', [AuthController::class, 'loginForm']],
@@ -54,6 +55,13 @@ return [
 
 ['GET', '/search', [SearchController::class, 'search']],
 ['GET', '/search/entities', [SearchController::class, 'entities']],
+
+['GET', '/contracts', [ContractController::class, 'index']],
+['GET', '/contracts/create', [ContractController::class, 'create']],
+['POST', '/contracts/store', [ContractController::class, 'store']],
+['GET', '/contracts/{id}', [ContractController::class, 'show']],
+['GET', '/contracts/{id}/edit', [ContractController::class, 'edit']],
+['POST', '/contracts/{id}/update', [ContractController::class, 'update']],
 
 ['GET', '/admin/users', [AdminController::class, 'users']],
 ['GET', '/admin/users/create', [AdminController::class, 'createUser']],

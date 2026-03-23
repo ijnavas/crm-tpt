@@ -179,7 +179,39 @@ $typeIcons = [
             <?php endif; ?>
         </div>
 
-        <!-- Contactos -->
+        <!-- Contratos -->
+        <div class="section-card">
+            <div class="section-head">
+                <h3>Contratos (<?= count($companyDetail['contracts'] ?? []) ?>)</h3>
+                <a href="/contracts/create?company_id=<?= $company['id'] ?>" class="btn-sm">+ Nuevo</a>
+            </div>
+            <?php if (empty($companyDetail['contracts'])): ?>
+                <div class="section-empty">No hay contratos con esta empresa</div>
+            <?php else: ?>
+                <?php foreach ($companyDetail['contracts'] as $ct): ?>
+                <div class="task-row-s">
+                    <div class="task-icon">📋</div>
+                    <div class="task-info">
+                        <div class="task-title-s">
+                            <a href="/contracts/<?= $ct['id'] ?>" style="color:var(--text-main)">
+                                <?= htmlspecialchars(ucfirst(strtolower($ct['title']))) ?>
+                            </a>
+                        </div>
+                        <div class="task-meta-s">
+                            <?= htmlspecialchars(ucfirst(str_replace('_',' ',$ct['service_type']))) ?>
+                            · <?= $ct['workers_assigned'] ?> trabajador<?= $ct['workers_assigned'] != 1 ? 'es' : '' ?>
+                            <?php if (!$empty($ct['end_date'])): ?>
+                                · hasta <?= date('d/m/y', strtotime($ct['end_date'])) ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <span class="lead-status-badge <?= $ct['status'] === 'activo' ? 'ls-interesado' : 'ls-no_interesado' ?>"><?= ucfirst($ct['status']) ?></span>
+                </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+    <!-- Contactos -->
         <div class="section-card">
             <div class="section-head">
                 <h3>Contactos (<?= count($contacts) ?>)</h3>

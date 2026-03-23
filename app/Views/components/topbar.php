@@ -53,6 +53,9 @@ function mobile_active(string $path, string $current): string {
     <a href="/tasks" class="mobile-nav-item <?= mobile_active('/tasks', $currentPath) ?>">
         <span class="mobile-nav-icon">◻</span>Tareas
     </a>
+    <a href="/contracts" class="mobile-nav-item <?= mobile_active('/contracts', $currentPath) ?>">
+        <span class="mobile-nav-icon">📋</span>Contratos
+    </a>
 </nav>
 
 <!-- Dropdown búsqueda -->

@@ -34,6 +34,9 @@ function nav_active(string $path, string $currentPath): string {
         <a href="/tasks" class="sidebar-link <?= nav_active('/tasks', $currentPath) ?>" onclick="closeSidebar()">
             <span class="sidebar-icon">◻</span><span>Tareas</span>
         </a>
+        <a href="/contracts" class="sidebar-link <?= nav_active('/contracts', $currentPath) ?>" onclick="closeSidebar()">
+            <span class="sidebar-icon">📋</span><span>Contratos</span>
+        </a>
         <?php
         $__user = \App\Core\Auth::user();
         if (($__user['role_name'] ?? '') === 'admin'):
