@@ -11,6 +11,7 @@ use App\Controllers\SearchController;
 use App\Controllers\UserController;
 use App\Controllers\AdminController;
 use App\Controllers\ContractController;
+use App\Controllers\WorkerController;
 
 return [
     ['GET', '/', [AuthController::class, 'loginForm']],
@@ -55,6 +56,15 @@ return [
 
 ['GET', '/search', [SearchController::class, 'search']],
 ['GET', '/search/entities', [SearchController::class, 'entities']],
+
+['GET', '/workers', [WorkerController::class, 'index']],
+['GET', '/workers/create', [WorkerController::class, 'create']],
+['POST', '/workers/store', [WorkerController::class, 'store']],
+['GET', '/workers/{id}', [WorkerController::class, 'show']],
+['GET', '/workers/{id}/edit', [WorkerController::class, 'edit']],
+['POST', '/workers/{id}/update', [WorkerController::class, 'update']],
+['POST', '/workers/{id}/assignments', [WorkerController::class, 'addAssignment']],
+['POST', '/workers/{id}/assignments/{assignId}/delete', [WorkerController::class, 'deleteAssignment']],
 
 ['GET', '/contracts', [ContractController::class, 'index']],
 ['GET', '/contracts/create', [ContractController::class, 'create']],
