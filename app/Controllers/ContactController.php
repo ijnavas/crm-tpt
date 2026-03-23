@@ -6,73 +6,86 @@ namespace App\Controllers;
 use App\Core\Auth;
 use App\Core\Controller;
 use App\Core\Request;
-use App\Core\Session;
-use App\Services\ContractService;
+use App\Services\ContactService;
 
-final class ContractController extends Controller
+final class ContactController extends Controller
 {
-    private ContractService $service;
+    private ContactService $service;
 
     public function __construct()
     {
-        $this->service = new ContractService();
+        $this->service = new ContactService();
     }
 
     private function guard(): void
     {
-        if (!Auth::check()) $this->redirect('/login');
+        if (!Auth::check()) {
+            $this->redirect('/login');
+        }
     }
 
     public function index(): void
     {
         $this->guard();
+
         $filters = Request::all();
-        $this->view('contracts/index', [
-            'title'     => 'Contratos',
-            'contracts' => $this->service->paginate($filters),
-            'filters'   => $filters,
-            'kpis'      => $this->service->getKpis(),
-            'catalogs'  => $this->service->getFormCatalogs(),
+        $result = $this->service->paginateContacts($filters);
+
+        $this->view('contacts/index', [
+            'title'      => 'Contactos',
+            'contacts'   => $result['data'],
+            'filters'    => $filters,
+            'jobTitles'  => $this->service->getJobTitles(),
         ]);
     }
 
     public function create(): void
     {
         $this->guard();
-        $this->view('contracts/create', [
-            'title'    => 'Nuevo contrato',
+
+        $this->view('contacts/create', [
+            'title'    => 'Nuevo contacto',
             'catalogs' => $this->service->getFormCatalogs(),
-            'company_id' => $_GET['company_id'] ?? null,
         ]);
     }
 
     public function store(): void
     {
         $this->guard();
-        $id = $this->service->create(Request::all());
-        Session::flash('success', 'Contrato creado correctamente');
-        $this->redirect('/contracts/' . $id);
+
+        $id = $this->service->createContact(Request::all());
+        $this->redirect('/contacts/' . $id);
     }
 
     public function show(string $id): void
     {
         $this->guard();
-        $contract = $this->service->getById((int) $id);
-        if (empty($contract)) $this->redirect('/contracts');
-        $this->view('contracts/show', [
-            'title'    => 'Contrato',
-            'contract' => $contract,
+
+        $contact = $this->service->getContactDetail((int) $id);
+
+        if (empty($contact)) {
+            $this->redirect('/contacts');
+        }
+
+        $this->view('contacts/show', [
+            'title'   => 'Ficha contacto',
+            'contact' => $contact,
         ]);
     }
 
     public function edit(string $id): void
     {
         $this->guard();
-        $contract = $this->service->getById((int) $id);
-        if (empty($contract)) $this->redirect('/contracts');
-        $this->view('contracts/edit', [
-            'title'    => 'Editar contrato',
-            'contract' => $contract,
+
+        $contact = $this->service->getContactById((int) $id);
+
+        if (empty($contact)) {
+            $this->redirect('/contacts');
+        }
+
+        $this->view('contacts/edit', [
+            'title'    => 'Editar contacto',
+            'contact'  => $contact,
             'catalogs' => $this->service->getFormCatalogs(),
         ]);
     }
@@ -80,8 +93,8 @@ final class ContractController extends Controller
     public function update(string $id): void
     {
         $this->guard();
-        $this->service->update((int) $id, Request::all());
-        Session::flash('success', 'Contrato actualizado correctamente');
-        $this->redirect('/contracts/' . $id);
+
+        $this->service->updateContact((int) $id, Request::all());
+        $this->redirect('/contacts/' . $id);
     }
 }
