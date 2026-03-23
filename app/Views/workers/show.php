@@ -79,7 +79,7 @@ $entityIcons  = ['company'=>'🏢','contract'=>'📋','lead'=>'◈','task'=>'✅
         </div>
         <div class="wk-meta-item">
             <span class="wk-meta-label">Disponibilidad</span>
-            <span class="wk-meta-value"><?= !empty($worker['availability']) ? htmlspecialchars(ucfirst(str_replace('_',' ',$worker['availability']))) : '—' ?></span>
+            <span class="wk-meta-value"><?= !empty($worker['availability']) ? htmlspecialchars(ucfirst(str_replace(['manana','_'], ['Mañana',' '], $worker['availability']))) : '—' ?></span>
         </div>
         <div class="wk-meta-item">
             <span class="wk-meta-label">Tipo de jornada</span>
@@ -136,35 +136,37 @@ $entityIcons  = ['company'=>'🏢','contract'=>'📋','lead'=>'◈','task'=>'✅
         <div class="assign-add">
             <p style="font-size:12px;font-weight:700;color:var(--text-soft);margin:0 0 12px;text-transform:uppercase;letter-spacing:.4px">Nueva asignación</p>
             <form method="POST" action="/workers/<?= $worker['id'] ?>/assignments">
-                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
-                    <div class="form-group" style="margin:0">
-                        <label style="font-size:11px">Tipo</label>
-                        <select name="entity_type" id="assign_type" onchange="loadAssignEntities(this.value)" class="lf-select" style="height:34px;width:100%">
+                <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+                    <div>
+                        <label style="font-size:11px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px">Tipo</label>
+                        <select name="entity_type" id="assign_type" onchange="loadAssignEntities(this.value)" style="width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px">
                             <?php foreach ($catalogs['entity_types'] as $val => $label): ?>
                                 <option value="<?= $val ?>"><?= $label ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="form-group" style="margin:0">
-                        <label style="font-size:11px">Entidad</label>
-                        <select name="entity_id" id="assign_entity" class="lf-select" style="height:34px;width:100%">
+                    <div>
+                        <label style="font-size:11px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px">Entidad</label>
+                        <select name="entity_id" id="assign_entity" style="width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px">
                             <option value="">Cargando...</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin:0">
-                        <label style="font-size:11px">Fecha inicio</label>
-                        <input type="date" name="start_date" style="height:34px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;width:100%">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                        <div>
+                            <label style="font-size:11px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px">Fecha inicio</label>
+                            <input type="date" name="start_date" style="width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;box-sizing:border-box">
+                        </div>
+                        <div>
+                            <label style="font-size:11px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px">Fecha fin</label>
+                            <input type="date" name="end_date" style="width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;box-sizing:border-box">
+                        </div>
                     </div>
-                    <div class="form-group" style="margin:0">
-                        <label style="font-size:11px">Fecha fin</label>
-                        <input type="date" name="end_date" style="height:34px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;width:100%">
-                    </div>
-                    <div class="form-group" style="margin:0;grid-column:1/-1">
-                        <label style="font-size:11px">Notas</label>
-                        <input type="text" name="notes" placeholder="Opcional..." style="height:34px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;width:100%">
+                    <div>
+                        <label style="font-size:11px;font-weight:600;color:var(--text-soft);display:block;margin-bottom:4px">Notas</label>
+                        <input type="text" name="notes" placeholder="Opcional..." style="width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;font-size:13px;box-sizing:border-box">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="height:34px;font-size:13px">+ Añadir asignación</button>
+                <button type="submit" class="btn btn-primary" style="width:100%;height:36px;font-size:13px">+ Añadir asignación</button>
             </form>
         </div>
     </div>
