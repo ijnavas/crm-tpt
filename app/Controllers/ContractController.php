@@ -1,87 +1,131 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Controllers;
+namespace App\Services;
 
-use App\Core\Auth;
-use App\Core\Controller;
-use App\Core\Request;
-use App\Core\Session;
-use App\Services\ContractService;
+use App\Repositories\ContractRepository;
+use App\Repositories\CompanyRepository;
 
-final class ContractController extends Controller
+final class ContractService
 {
-    private ContractService $service;
+    private ContractRepository $repo;
 
     public function __construct()
     {
-        $this->service = new ContractService();
+        $this->repo = new ContractRepository();
     }
 
-    private function guard(): void
+    public function paginate(array $filters = []): array
     {
-        if (!Auth::check()) $this->redirect('/login');
+        return $this->repo->paginate($filters);
     }
 
-    public function index(): void
+    public function getById(int $id): array
     {
-        $this->guard();
-        $filters = Request::all();
-        $this->view('contracts/index', [
-            'title'     => 'Contratos',
-            'contracts' => $this->service->paginate($filters),
-            'filters'   => $filters,
-            'kpis'      => $this->service->getKpis(),
-            'catalogs'  => $this->service->getFormCatalogs(),
-        ]);
+        return $this->repo->find($id);
     }
 
-    public function create(): void
+    public function getByCompany(int $companyId): array
     {
-        $this->guard();
-        $this->view('contracts/create', [
-            'title'    => 'Nuevo contrato',
-            'catalogs' => $this->service->getFormCatalogs(),
-            'company_id' => $_GET['company_id'] ?? null,
-        ]);
+        return $this->repo->getByCompany($companyId);
     }
 
-    public function store(): void
+    public function create(array $data): int
     {
-        $this->guard();
-        $id = $this->service->create(Request::all());
-        Session::flash('success', 'Contrato creado correctamente');
-        $this->redirect('/contracts/' . $id);
+        $id = $this->repo->insert($data);
+        if (!empty($_FILES['document']['name'])) {
+            $url = $this->uploadDocument($_FILES['document'], $id);
+            $found = $this->repo->find($id);
+            $found['document_url'] = $url;
+            $this->repo->update($id, $found);
+        }
+        return $id;
     }
 
-    public function show(string $id): void
+    public function update(int $id, array $data): void
     {
-        $this->guard();
-        $contract = $this->service->getById((int) $id);
-        if (empty($contract)) $this->redirect('/contracts');
-        $this->view('contracts/show', [
-            'title'    => 'Contrato',
-            'contract' => $contract,
-        ]);
+        if (!empty($_FILES['document']['name'])) {
+            $data['document_url'] = $this->uploadDocument($_FILES['document'], $id);
+        }
+        $this->repo->update($id, $data);
     }
 
-    public function edit(string $id): void
+    public function getKpis(): array
     {
-        $this->guard();
-        $contract = $this->service->getById((int) $id);
-        if (empty($contract)) $this->redirect('/contracts');
-        $this->view('contracts/edit', [
-            'title'    => 'Editar contrato',
-            'contract' => $contract,
-            'catalogs' => $this->service->getFormCatalogs(),
-        ]);
+        return $this->repo->getKpis();
     }
 
-    public function update(string $id): void
+    public function getFilterCatalogs(): array
     {
-        $this->guard();
-        $this->service->update((int) $id, Request::all());
-        Session::flash('success', 'Contrato actualizado correctamente');
-        $this->redirect('/contracts/' . $id);
+        $companyRepo = new CompanyRepository();
+        $companies   = $companyRepo->paginate([])['data'];
+
+        return [
+            'companies'     => $companies,
+            'service_types' => $this->serviceTypesCatalog(),
+            'statuses'      => $this->statusesCatalog(),
+        ];
+    }
+
+    public function getFormCatalogs(): array
+    {
+        $companyRepo = new CompanyRepository();
+        $companies   = $companyRepo->paginate([])['data'];
+
+        return [
+            'statuses'      => $this->statusesCatalog(),
+            'service_types' => $this->serviceTypesCatalog(),
+            'companies'     => $companies,
+        ];
+    }
+
+    private function statusesCatalog(): array
+    {
+        return [
+            'activo'     => 'Activo',
+            'renovado'   => 'Renovado',
+            'pausado'    => 'Pausado',
+            'finalizado' => 'Finalizado',
+            'cancelado'  => 'Cancelado',
+        ];
+    }
+
+    private function serviceTypesCatalog(): array
+    {
+        return [
+            'limpieza'            => 'Limpieza',
+            'mantenimiento'       => 'Mantenimiento',
+            'jardineria'          => 'Jardinería',
+            'logistica'           => 'Logística',
+            'administracion'      => 'Administración',
+            'atencion_al_cliente' => 'Atención al cliente',
+            'produccion'          => 'Producción',
+            'hosteleria'          => 'Hostelería',
+            'otro'                => 'Otro',
+        ];
+    }
+
+    private function uploadDocument(array $file, int $contractId): string
+    {
+        $ext     = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $allowed = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
+        if (!in_array($ext, $allowed)) {
+            throw new \RuntimeException('Formato no permitido. Usa PDF, DOC, DOCX o imagen.');
+        }
+        if ($file['size'] > 10 * 1024 * 1024) {
+            throw new \RuntimeException('Máximo 10MB');
+        }
+
+        $dir = BASE_PATH . '/public/assets/docs/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+
+        $name = 'contract_' . $contractId . '_' . time() . '.' . $ext;
+        if (!move_uploaded_file($file['tmp_name'], $dir . $name)) {
+            throw new \RuntimeException('No se pudo guardar el archivo. Verifica permisos del directorio.');
+        }
+
+        return '/assets/docs/' . $name;
     }
 }
