@@ -4,6 +4,21 @@ $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
 function mobile_active(string $path, string $current): string {
     return str_starts_with($current, $path) ? 'active' : '';
 }
+
+// Contar tareas vencidas
+$overdueCount = 0;
+try {
+    $db = \App\Core\Database::connection();
+    $stmt = $db->query("
+        SELECT COUNT(*) FROM tasks
+        WHERE status NOT IN ('completada')
+        AND due_date IS NOT NULL
+        AND due_date < NOW()
+    ");
+    $overdueCount = (int) $stmt->fetchColumn();
+} catch (\Throwable $e) {
+    $overdueCount = 0;
+}
 ?>
 
 <header class="topbar">
@@ -14,8 +29,13 @@ function mobile_active(string $path, string $current): string {
     </div>
 
     <div class="topbar-actions">
-        <button class="topbar-btn hide-mobile">Filtrar</button>
-        <button class="topbar-btn hide-mobile">Exportar</button>
+
+        <!-- Badge tareas vencidas -->
+        <?php if ($overdueCount > 0): ?>
+        <a href="/tasks?status=vencida" class="topbar-overdue-badge" title="Tareas vencidas">
+            ⚠️ <span><?= $overdueCount ?></span>
+        </a>
+        <?php endif; ?>
 
         <a href="/profile" class="topbar-user" title="Mi perfil" style="text-decoration:none">
             <div class="topbar-avatar" style="overflow:hidden">

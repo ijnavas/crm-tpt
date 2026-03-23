@@ -479,3 +479,31 @@ button, input, select, textarea { font: inherit; }
     .topbar-search input { font-size: 16px; } /* evita zoom en iOS */
     .db-kpis { grid-template-columns: repeat(2, 1fr) !important; }
 }
+
+/* Badge tareas vencidas en topbar */
+.topbar-overdue-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #fef2f2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background .15s;
+    white-space: nowrap;
+}
+.topbar-overdue-badge:hover {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+.topbar-overdue-badge span {
+    background: #b91c1c;
+    color: #fff;
+    border-radius: 999px;
+    padding: 1px 7px;
+    font-size: 11px;
+}
