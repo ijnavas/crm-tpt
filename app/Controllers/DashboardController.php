@@ -11,26 +11,22 @@ final class DashboardController extends Controller
 {
     public function index(): void
     {
-        if (!Auth::check()) {
-            $this->redirect('/login');
-        }
+        if (!Auth::check()) $this->redirect('/login');
 
-        $user    = Auth::user();
-        $role    = $user['role_name'] ?? $user['role_id'] ?? null;
-        $service = new DashboardService();
+        $user      = Auth::user();
+        $dashboard = $user['dashboard'] ?? 'default';
+        $service   = new DashboardService();
+        $data      = $service->getDashboardData();
 
-        match ($role) {
-            'direccion' => $this->view('dashboard/direccion', [
-                'title'     => 'Dashboard Dirección',
-                'dashboard' => $service->getDashboardData(),
-            ]),
+        match ($dashboard) {
             'comercial' => $this->view('dashboard/comercial', [
-                'title'     => 'Dashboard Comercial',
-                'dashboard' => $service->getDashboardData(),
+                'title' => 'Dashboard Comercial', 'dashboard' => $data,
+            ]),
+            'direccion' => $this->view('dashboard/direccion', [
+                'title' => 'Dashboard Dirección', 'dashboard' => $data,
             ]),
             default => $this->view('dashboard/index', [
-                'title'     => 'Dashboard',
-                'dashboard' => $service->getDashboardData(),
+                'title' => 'Dashboard', 'dashboard' => $data,
             ]),
         };
     }

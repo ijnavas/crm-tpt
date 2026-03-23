@@ -9,6 +9,7 @@ use App\Controllers\ContactController;
 use App\Controllers\TaskController;
 use App\Controllers\SearchController;
 use App\Controllers\UserController;
+use App\Controllers\AdminController;
 
 return [
     ['GET', '/', [AuthController::class, 'loginForm']],
@@ -53,6 +54,13 @@ return [
 
 ['GET', '/search', [SearchController::class, 'search']],
 ['GET', '/search/entities', [SearchController::class, 'entities']],
+
+['GET', '/admin/users', [AdminController::class, 'users']],
+['GET', '/admin/users/create', [AdminController::class, 'createUser']],
+['POST', '/admin/users/store', [AdminController::class, 'storeUser']],
+['GET', '/admin/users/{id}/edit', [AdminController::class, 'editUser']],
+['POST', '/admin/users/{id}/update', [AdminController::class, 'updateUser']],
+['POST', '/admin/users/{id}/toggle', [AdminController::class, 'toggleUser']],
 
 ['GET', '/profile', [UserController::class, 'profile']],
 ['POST', '/profile/update', [UserController::class, 'updateProfile']],

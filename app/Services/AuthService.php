@@ -13,7 +13,7 @@ final class AuthService
         $db = Database::connection();
 
         $stmt = $db->prepare('
-            SELECT u.*, r.name AS role_name
+            SELECT u.*, r.name AS role_name, u.dashboard
             FROM users u
             JOIN roles r ON r.id = u.role_id
             WHERE u.email = :email

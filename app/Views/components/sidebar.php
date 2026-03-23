@@ -15,7 +15,7 @@ function nav_active(string $path, string $currentPath): string {
     <div class="sidebar-brand">
         <img src="https://tptempleo.es/wp-content/uploads/2023/05/logo1.png"
              alt="TPT Empleo"
-             style="width:100%;max-height:180px;object-fit:contain;display:block">
+             style="width:100%;max-height:80px;object-fit:contain;display:block">
     </div>
 
     <nav class="sidebar-nav">
@@ -34,6 +34,14 @@ function nav_active(string $path, string $currentPath): string {
         <a href="/tasks" class="sidebar-link <?= nav_active('/tasks', $currentPath) ?>" onclick="closeSidebar()">
             <span class="sidebar-icon">◻</span><span>Tareas</span>
         </a>
+        <?php
+        $__user = \App\Core\Auth::user();
+        if (($__user['role_name'] ?? '') === 'admin'):
+        ?>
+        <a href="/admin/users" class="sidebar-link <?= nav_active('/admin', $currentPath) ?>" onclick="closeSidebar()">
+            <span class="sidebar-icon">⚙</span><span>Usuarios</span>
+        </a>
+        <?php endif; ?>
     </nav>
 
 

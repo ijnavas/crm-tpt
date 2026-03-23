@@ -27,6 +27,41 @@ final class UserRepository
         return $stmt->fetch() ?: [];
     }
 
+    public function getAll(): array
+    {
+        $stmt = $this->db->query("
+            SELECT u.*, r.name AS role_name
+            FROM users u
+            JOIN roles r ON r.id = u.role_id
+            ORDER BY u.first_name ASC
+        ");
+        return $stmt->fetchAll();
+    }
+
+    public function getRoles(): array
+    {
+        $stmt = $this->db->query("SELECT * FROM roles ORDER BY name ASC");
+        return $stmt->fetchAll();
+    }
+
+    public function insert(array $data): int
+    {
+        $stmt = $this->db->prepare("
+            INSERT INTO users (role_id, first_name, last_name, email, password_hash, status, dashboard)
+            VALUES (:role_id, :first_name, :last_name, :email, :password_hash, :status, :dashboard)
+        ");
+        $stmt->execute([
+            'role_id'       => $data['role_id'],
+            'first_name'    => ucfirst(strtolower(trim($data['first_name']))),
+            'last_name'     => ucfirst(strtolower(trim($data['last_name'] ?? ''))),
+            'email'         => strtolower(trim($data['email'])),
+            'password_hash' => password_hash($data['password'], PASSWORD_DEFAULT),
+            'status'        => $data['status'] ?? 'activo',
+            'dashboard'     => $data['dashboard'] ?? 'default',
+        ]);
+        return (int) $this->db->lastInsertId();
+    }
+
     public function update(int $id, array $data): void
     {
         $stmt = $this->db->prepare("
@@ -34,14 +69,20 @@ final class UserRepository
                 first_name = :first_name,
                 last_name  = :last_name,
                 email      = :email,
+                role_id    = :role_id,
+                status     = :status,
+                dashboard  = :dashboard,
                 updated_at = NOW()
             WHERE id = :id
         ");
         $stmt->execute([
             'id'         => $id,
-            'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
-            'email'      => $data['email'],
+            'first_name' => ucfirst(strtolower(trim($data['first_name']))),
+            'last_name'  => ucfirst(strtolower(trim($data['last_name'] ?? ''))),
+            'email'      => strtolower(trim($data['email'])),
+            'role_id'    => $data['role_id'],
+            'status'     => $data['status'] ?? 'activo',
+            'dashboard'  => $data['dashboard'] ?? 'default',
         ]);
     }
 
@@ -55,6 +96,17 @@ final class UserRepository
     {
         $stmt = $this->db->prepare("UPDATE users SET avatar = :avatar, updated_at = NOW() WHERE id = :id");
         $stmt->execute(['id' => $id, 'avatar' => $path]);
+    }
+
+    public function toggleStatus(int $id): void
+    {
+        $stmt = $this->db->prepare("
+            UPDATE users SET
+                status = IF(status = 'activo', 'inactivo', 'activo'),
+                updated_at = NOW()
+            WHERE id = :id
+        ");
+        $stmt->execute(['id' => $id]);
     }
 
     public function getSetting(string $key): ?string
