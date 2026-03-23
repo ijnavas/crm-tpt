@@ -8,7 +8,6 @@ define('APP_PATH',  BASE_PATH . '/app');
 define('STORAGE_PATH', BASE_PATH . '/storage');
 
 require BASE_PATH . '/vendor/autoload.php';
-require BASE_PATH . '/bootstrap/autoload.php';
 require BASE_PATH . '/bootstrap/helpers.php';
 require BASE_PATH . '/bootstrap/app.php';
 
