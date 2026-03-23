@@ -178,9 +178,50 @@ final class CompanyRepository
 
     public function getTimeline(int $companyId): array
     {
-        $stmt = $this->db->prepare("SELECT * FROM activity_logs WHERE entity_type = 'company' AND entity_id = :entity_id ORDER BY created_at DESC");
-        $stmt->execute(['entity_id' => $companyId]);
-        return $stmt->fetchAll();
+        // Activity logs de la empresa
+        $stmt = $this->db->prepare("
+            SELECT
+                al.id, al.action, al.description, al.created_at,
+                'activity' AS event_type,
+                CONCAT(u.first_name, ' ', u.last_name) AS user_name
+            FROM activity_logs al
+            LEFT JOIN users u ON u.id = al.user_id
+            WHERE al.entity_type = 'company' AND al.entity_id = :id
+        ");
+        $stmt->execute(['id' => $companyId]);
+        $activities = $stmt->fetchAll();
+
+        // Tareas completadas o creadas
+        $stmt2 = $this->db->prepare("
+            SELECT
+                t.id, t.title AS description, t.status, t.type,
+                t.created_at, t.completed_at, t.due_date, t.notes,
+                'task' AS event_type,
+                CONCAT(u.first_name, ' ', u.last_name) AS user_name
+            FROM tasks t
+            LEFT JOIN users u ON u.id = t.assigned_user_id
+            WHERE t.entity_type = 'company' AND t.entity_id = :id
+        ");
+        $stmt2->execute(['id' => $companyId]);
+        $tasks = $stmt2->fetchAll();
+
+        // Contactos añadidos
+        $stmt3 = $this->db->prepare("
+            SELECT
+                cc.id, cc.full_name AS description, cc.job_title,
+                cc.created_at, 'contact' AS event_type,
+                CONCAT(u.first_name, ' ', u.last_name) AS user_name
+            FROM company_contacts cc
+            LEFT JOIN users u ON u.id = cc.created_by
+            WHERE cc.company_id = :id
+        ");
+        $stmt3->execute(['id' => $companyId]);
+        $contacts = $stmt3->fetchAll();
+
+        // Unir y ordenar por fecha desc
+        $all = array_merge($activities, $tasks, $contacts);
+        usort($all, fn($a, $b) => strtotime($b['created_at']) - strtotime($a['created_at']));
+        return $all;
     }
 
     public function logActivity(string $entityType, int $entityId, string $action, string $description): void
