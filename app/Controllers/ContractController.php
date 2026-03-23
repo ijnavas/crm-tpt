@@ -1,131 +1,87 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Services;
+namespace App\Controllers;
 
-use App\Repositories\ContractRepository;
-use App\Repositories\CompanyRepository;
+use App\Core\Auth;
+use App\Core\Controller;
+use App\Core\Request;
+use App\Core\Session;
+use App\Services\ContractService;
 
-final class ContractService
+final class ContractController extends Controller
 {
-    private ContractRepository $repo;
+    private ContractService $service;
 
     public function __construct()
     {
-        $this->repo = new ContractRepository();
+        $this->service = new ContractService();
     }
 
-    public function paginate(array $filters = []): array
+    private function guard(): void
     {
-        return $this->repo->paginate($filters);
+        if (!Auth::check()) $this->redirect('/login');
     }
 
-    public function getById(int $id): array
+    public function index(): void
     {
-        return $this->repo->find($id);
+        $this->guard();
+        $filters = Request::all();
+        $this->view('contracts/index', [
+            'title'          => 'Contratos',
+            'contracts'      => $this->service->paginate($filters),
+            'filters'        => $filters,
+            'kpis'           => $this->service->getKpis(),
+            'filterCatalogs' => $this->service->getFilterCatalogs(),
+        ]);
     }
 
-    public function getByCompany(int $companyId): array
+    public function create(): void
     {
-        return $this->repo->getByCompany($companyId);
+        $this->guard();
+        $this->view('contracts/create', [
+            'title'      => 'Nuevo contrato',
+            'catalogs'   => $this->service->getFormCatalogs(),
+            'company_id' => $_GET['company_id'] ?? null,
+        ]);
     }
 
-    public function create(array $data): int
+    public function store(): void
     {
-        $id = $this->repo->insert($data);
-        if (!empty($_FILES['document']['name'])) {
-            $url = $this->uploadDocument($_FILES['document'], $id);
-            $found = $this->repo->find($id);
-            $found['document_url'] = $url;
-            $this->repo->update($id, $found);
-        }
-        return $id;
+        $this->guard();
+        $id = $this->service->create(Request::all());
+        Session::flash('success', 'Contrato creado correctamente');
+        $this->redirect('/contracts/' . $id);
     }
 
-    public function update(int $id, array $data): void
+    public function show(string $id): void
     {
-        if (!empty($_FILES['document']['name'])) {
-            $data['document_url'] = $this->uploadDocument($_FILES['document'], $id);
-        }
-        $this->repo->update($id, $data);
+        $this->guard();
+        $contract = $this->service->getById((int) $id);
+        if (empty($contract)) $this->redirect('/contracts');
+        $this->view('contracts/show', [
+            'title'    => 'Contrato',
+            'contract' => $contract,
+        ]);
     }
 
-    public function getKpis(): array
+    public function edit(string $id): void
     {
-        return $this->repo->getKpis();
+        $this->guard();
+        $contract = $this->service->getById((int) $id);
+        if (empty($contract)) $this->redirect('/contracts');
+        $this->view('contracts/edit', [
+            'title'    => 'Editar contrato',
+            'contract' => $contract,
+            'catalogs' => $this->service->getFormCatalogs(),
+        ]);
     }
 
-    public function getFilterCatalogs(): array
+    public function update(string $id): void
     {
-        $companyRepo = new CompanyRepository();
-        $companies   = $companyRepo->paginate([])['data'];
-
-        return [
-            'companies'     => $companies,
-            'service_types' => $this->serviceTypesCatalog(),
-            'statuses'      => $this->statusesCatalog(),
-        ];
-    }
-
-    public function getFormCatalogs(): array
-    {
-        $companyRepo = new CompanyRepository();
-        $companies   = $companyRepo->paginate([])['data'];
-
-        return [
-            'statuses'      => $this->statusesCatalog(),
-            'service_types' => $this->serviceTypesCatalog(),
-            'companies'     => $companies,
-        ];
-    }
-
-    private function statusesCatalog(): array
-    {
-        return [
-            'activo'     => 'Activo',
-            'renovado'   => 'Renovado',
-            'pausado'    => 'Pausado',
-            'finalizado' => 'Finalizado',
-            'cancelado'  => 'Cancelado',
-        ];
-    }
-
-    private function serviceTypesCatalog(): array
-    {
-        return [
-            'limpieza'            => 'Limpieza',
-            'mantenimiento'       => 'Mantenimiento',
-            'jardineria'          => 'Jardinería',
-            'logistica'           => 'Logística',
-            'administracion'      => 'Administración',
-            'atencion_al_cliente' => 'Atención al cliente',
-            'produccion'          => 'Producción',
-            'hosteleria'          => 'Hostelería',
-            'otro'                => 'Otro',
-        ];
-    }
-
-    private function uploadDocument(array $file, int $contractId): string
-    {
-        $ext     = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        $allowed = ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'];
-        if (!in_array($ext, $allowed)) {
-            throw new \RuntimeException('Formato no permitido. Usa PDF, DOC, DOCX o imagen.');
-        }
-        if ($file['size'] > 10 * 1024 * 1024) {
-            throw new \RuntimeException('Máximo 10MB');
-        }
-
-        $dir = BASE_PATH . '/public/assets/docs/';
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-
-        $name = 'contract_' . $contractId . '_' . time() . '.' . $ext;
-        if (!move_uploaded_file($file['tmp_name'], $dir . $name)) {
-            throw new \RuntimeException('No se pudo guardar el archivo. Verifica permisos del directorio.');
-        }
-
-        return '/assets/docs/' . $name;
+        $this->guard();
+        $this->service->update((int) $id, Request::all());
+        Session::flash('success', 'Contrato actualizado correctamente');
+        $this->redirect('/contracts/' . $id);
     }
 }
