@@ -93,13 +93,15 @@ $statusColors = [
             <option value="end"   <?= (($filters['date_type'] ?? '') === 'end')   ? 'selected' : '' ?>>Fecha fin</option>
         </select>
 
-        <!-- Rango de fechas -->
-        <input type="date" name="date_from" class="lf-input" style="max-width:150px"
+        <!-- Mes desde -->
+        <input type="month" name="date_from" class="lf-input" style="max-width:155px"
                value="<?= htmlspecialchars($filters['date_from'] ?? '') ?>"
-               title="Desde">
-        <input type="date" name="date_to" class="lf-input" style="max-width:150px"
+               title="Desde (mes/año)">
+
+        <!-- Mes hasta -->
+        <input type="month" name="date_to" class="lf-input" style="max-width:155px"
                value="<?= htmlspecialchars($filters['date_to'] ?? '') ?>"
-               title="Hasta">
+               title="Hasta (mes/año)">
 
         <button type="submit" class="lf-btn-search">Buscar</button>
 

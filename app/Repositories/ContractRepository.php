@@ -36,23 +36,20 @@ final class ContractRepository
             $params['service_type'] = $filters['service_type'];
         }
 
+        // Filtro por mes/año — date_from y date_to llegan como 'YYYY-MM'
+        $dateCol = (!empty($filters['date_type']) && $filters['date_type'] === 'end') ? 'c.end_date' : 'c.start_date';
+
         if (!empty($filters['date_from'])) {
-            $where[] = 'c.start_date >= :date_from';
-            $params['date_from'] = $filters['date_from'];
+            $where[] = $dateCol . ' >= :date_from';
+            $params['date_from'] = $filters['date_from'] . '-01'; // primer día del mes
         }
 
         if (!empty($filters['date_to'])) {
-            $where[] = 'c.end_date <= :date_to';
-            $params['date_to'] = $filters['date_to'];
-        }
-
-        if (!empty($filters['date_type']) && $filters['date_type'] === 'end') {
-            if (!empty($filters['date_from'])) {
-                $where[count($where)-2] = 'c.end_date >= :date_from';
-            }
-            if (!empty($filters['date_to'])) {
-                $where[count($where)-1] = 'c.end_date <= :date_to';
-            }
+            $where[] = $dateCol . ' <= :date_to';
+            // último día del mes seleccionado
+            $parts = explode('-', $filters['date_to']);
+            $lastDay = date('Y-m-t', mktime(0, 0, 0, (int)$parts[1], 1, (int)$parts[0]));
+            $params['date_to'] = $lastDay;
         }
 
         $sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
