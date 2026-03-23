@@ -61,9 +61,11 @@ $expiring = !empty($contract['end_date']) && strtotime($contract['end_date']) <=
 
         <?php if (!empty($contract['document_url'])): ?>
         <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border-soft)">
-            <a href="<?= htmlspecialchars($contract['document_url']) ?>" target="_blank"
+            <?php $isLocal = str_starts_with($contract['document_url'], '/assets/'); ?>
+            <a href="<?= htmlspecialchars($contract['document_url']) ?>"
+               target="_blank" <?= $isLocal ? 'download' : '' ?>
                class="btn btn-secondary" style="width:100%;justify-content:center">
-                📄 Ver documento del contrato
+                📄 <?= $isLocal ? 'Descargar documento' : 'Ver documento' ?>
             </a>
         </div>
         <?php endif; ?>

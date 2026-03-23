@@ -101,12 +101,20 @@
     <div class="ct-form-section-head">Documentación</div>
     <div class="ct-form-section-body">
         <div class="form-group">
-            <label>URL del documento</label>
-            <input type="url" name="document_url"
-                   value="<?= htmlspecialchars($contract['document_url'] ?? '') ?>"
-                   placeholder="https://drive.google.com/...">
+            <label>Documento del contrato</label>
+            <?php if (!empty($contract['document_url'])): ?>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px">
+                <span>📄</span>
+                <a href="<?= htmlspecialchars($contract['document_url']) ?>" target="_blank" style="font-size:13px;font-weight:600">
+                    Ver documento actual
+                </a>
+                <span style="font-size:12px;color:var(--text-soft)">· Sube uno nuevo para reemplazarlo</span>
+            </div>
+            <?php endif; ?>
+            <input type="file" name="document" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                   style="border:1px solid var(--border);border-radius:10px;padding:10px;width:100%;font-size:13px">
             <small style="color:var(--text-soft);font-size:12px;margin-top:4px;display:block">
-                Enlace al contrato en Google Drive, Dropbox u otro servicio
+                Formatos permitidos: PDF, DOC, DOCX, JPG, PNG · Máximo 10MB
             </small>
         </div>
         <div class="form-group">

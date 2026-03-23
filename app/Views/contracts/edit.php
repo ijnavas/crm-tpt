@@ -4,7 +4,7 @@
         <p><?= htmlspecialchars($contract['title'] ?? '') ?></p>
     </div>
 </section>
-<form action="/contracts/<?= $contract['id'] ?>/update" method="POST">
+<form action="/contracts/<?= $contract['id'] ?>/update" method="POST" enctype="multipart/form-data">
     <?php require app_path('Views/contracts/partials/form.php'); ?>
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Guardar cambios</button>

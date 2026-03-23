@@ -36,9 +36,23 @@ final class ContractRepository
             $params['service_type'] = $filters['service_type'];
         }
 
-        if (!empty($filters['q'])) {
-            $where[] = '(c.title LIKE :q OR co.name LIKE :q OR c.service_type LIKE :q)';
-            $params['q'] = '%' . $filters['q'] . '%';
+        if (!empty($filters['date_from'])) {
+            $where[] = 'c.start_date >= :date_from';
+            $params['date_from'] = $filters['date_from'];
+        }
+
+        if (!empty($filters['date_to'])) {
+            $where[] = 'c.end_date <= :date_to';
+            $params['date_to'] = $filters['date_to'];
+        }
+
+        if (!empty($filters['date_type']) && $filters['date_type'] === 'end') {
+            if (!empty($filters['date_from'])) {
+                $where[count($where)-2] = 'c.end_date >= :date_from';
+            }
+            if (!empty($filters['date_to'])) {
+                $where[count($where)-1] = 'c.end_date <= :date_to';
+            }
         }
 
         $sqlWhere = $where ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -148,6 +162,17 @@ final class ContractRepository
             'document_url'     => $data['document_url'] ?? null,
             'notes'            => $data['notes'] ?? null,
         ]);
+    }
+
+    public function getCompaniesWithContracts(): array
+    {
+        $stmt = $this->db->query("
+            SELECT DISTINCT co.id, co.name
+            FROM contracts c
+            JOIN companies co ON co.id = c.company_id
+            ORDER BY co.name ASC
+        ");
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function getServiceTypes(): array

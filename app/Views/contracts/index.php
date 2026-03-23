@@ -57,33 +57,53 @@ $statusColors = [
 <!-- Filtros -->
 <div class="leads-filters" style="margin-bottom:16px">
     <form method="GET" action="/contracts">
-        <div class="lf-search-wrap">
-            <span class="lf-search-icon">🔍</span>
-            <input type="text" name="q" class="lf-input"
-                placeholder="Buscar contrato o empresa..."
-                value="<?= htmlspecialchars($filters['q'] ?? '') ?>">
-        </div>
-
-        <select name="status" class="lf-select" onchange="this.form.submit()">
-            <option value="">Todos los estados</option>
-            <?php foreach ($catalogs['statuses'] as $val => $label): ?>
-                <option value="<?= $val ?>" <?= (($filters['status'] ?? '') === $val) ? 'selected' : '' ?>>
-                    <?= $label ?>
+        <!-- Empresa -->
+        <select name="company_id" class="lf-select" onchange="this.form.submit()">
+            <option value="">Todas las empresas</option>
+            <?php foreach ($filterCatalogs['companies'] as $co): ?>
+                <option value="<?= $co['id'] ?>" <?= (($filters['company_id'] ?? '') == $co['id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars(ucfirst(strtolower($co['name']))) ?>
                 </option>
             <?php endforeach; ?>
         </select>
 
+        <!-- Servicio -->
         <select name="service_type" class="lf-select" onchange="this.form.submit()">
             <option value="">Todos los servicios</option>
-            <?php foreach ($catalogs['service_types'] as $val => $label): ?>
+            <?php foreach ($filterCatalogs['service_types'] as $val => $label): ?>
                 <option value="<?= $val ?>" <?= (($filters['service_type'] ?? '') === $val) ? 'selected' : '' ?>>
                     <?= $label ?>
                 </option>
             <?php endforeach; ?>
         </select>
 
+        <!-- Estado -->
+        <select name="status" class="lf-select" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
+            <?php foreach ($filterCatalogs['statuses'] as $val => $label): ?>
+                <option value="<?= $val ?>" <?= (($filters['status'] ?? '') === $val) ? 'selected' : '' ?>>
+                    <?= $label ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+
+        <!-- Tipo de fecha -->
+        <select name="date_type" class="lf-select" style="max-width:130px">
+            <option value="start" <?= (($filters['date_type'] ?? 'start') === 'start') ? 'selected' : '' ?>>Fecha inicio</option>
+            <option value="end"   <?= (($filters['date_type'] ?? '') === 'end')   ? 'selected' : '' ?>>Fecha fin</option>
+        </select>
+
+        <!-- Rango de fechas -->
+        <input type="date" name="date_from" class="lf-input" style="max-width:150px"
+               value="<?= htmlspecialchars($filters['date_from'] ?? '') ?>"
+               title="Desde">
+        <input type="date" name="date_to" class="lf-input" style="max-width:150px"
+               value="<?= htmlspecialchars($filters['date_to'] ?? '') ?>"
+               title="Hasta">
+
         <button type="submit" class="lf-btn-search">Buscar</button>
-        <?php if (!empty($filters['q']) || !empty($filters['status']) || !empty($filters['service_type'])): ?>
+
+        <?php if (!empty($filters['company_id']) || !empty($filters['service_type']) || !empty($filters['status']) || !empty($filters['date_from']) || !empty($filters['date_to'])): ?>
             <a href="/contracts" class="lf-btn-clear">✕ Limpiar</a>
         <?php endif; ?>
     </form>
@@ -101,7 +121,7 @@ $statusColors = [
                 <th>Importe</th>
                 <th>Vigencia</th>
                 <th>Estado</th>
-                <th>Acciones</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -118,14 +138,13 @@ $statusColors = [
                         <?= htmlspecialchars(ucfirst(strtolower($c['title']))) ?>
                     </a>
                     <?php if (!empty($c['renewable'])): ?>
-                        <span style="font-size:10px;color:var(--primary);margin-left:4px">↻ Renovable</span>
+                        <span style="font-size:10px;color:var(--primary);margin-left:4px">↻</span>
+                    <?php endif; ?>
+                    <?php if (!empty($c['document_url'])): ?>
+                        <a href="<?= htmlspecialchars($c['document_url']) ?>" target="_blank" title="Ver documento" style="margin-left:4px;font-size:13px">📄</a>
                     <?php endif; ?>
                 </td>
-                <td>
-                    <a href="/companies/<?= $c['company_id'] ?>">
-                        <?= htmlspecialchars(ucfirst(strtolower($c['company_name']))) ?>
-                    </a>
-                </td>
+                <td><a href="/companies/<?= $c['company_id'] ?>"><?= htmlspecialchars(ucfirst(strtolower($c['company_name']))) ?></a></td>
                 <td><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $c['service_type']))) ?></td>
                 <td style="text-align:center;font-weight:600"><?= $c['workers_assigned'] ?></td>
                 <td><?= !empty($c['amount']) ? number_format($c['amount'], 2, ',', '.') . ' €' : '—' ?></td>
@@ -133,7 +152,7 @@ $statusColors = [
                     <?= !empty($c['start_date']) ? date('d/m/y', strtotime($c['start_date'])) : '—' ?>
                     <?php if (!empty($c['end_date'])): ?>
                         → <?= date('d/m/y', strtotime($c['end_date'])) ?>
-                        <?php if ($expiring): ?> ⚠️<?php endif; ?>
+                        <?= $expiring ? '⚠️' : '' ?>
                     <?php endif; ?>
                 </td>
                 <td>
