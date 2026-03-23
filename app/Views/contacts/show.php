@@ -2,8 +2,8 @@
 
 <section class="page-header">
     <div>
-        <h1><?= htmlspecialchars($c['full_name'] ?? 'Contacto') ?></h1>
-        <p><?= htmlspecialchars($c['job_title'] ?? '') ?><?= !empty($c['company_name']) ? ' · ' . htmlspecialchars($c['company_name']) : '' ?></p>
+        <h1><?= htmlspecialchars(ucwords(strtolower($c['full_name'] ?? 'Contacto'))) ?></h1>
+        <p><?= htmlspecialchars(ucfirst(strtolower($c['job_title'] ?? ''))) ?><?= !empty($c['company_name']) ? ' · ' . htmlspecialchars($c['company_name']) : '' ?></p>
     </div>
     <div style="display:flex;gap:10px;">
         <a href="/tasks/create?entity_type=contact&entity_id=<?= $c['id'] ?>" class="btn btn-primary">+ Nueva tarea</a>
@@ -18,16 +18,16 @@
     <div class="card">
         <h2>Datos del contacto</h2>
         <table class="table">
-            <tr><td><strong>Nombre completo</strong></td><td><?= htmlspecialchars($c['full_name'] ?? '-') ?></td></tr>
+            <tr><td><strong>Nombre completo</strong></td><td><?= htmlspecialchars(ucwords(strtolower($c['full_name'] ?? '-'))) ?></td></tr>
             <tr><td><strong>Empresa</strong></td><td>
                 <?php if (!empty($c['company_id'])): ?>
-                    <a href="/companies/<?= $c['company_id'] ?>"><?= htmlspecialchars($c['company_name'] ?? '-') ?></a>
+                    <a href="/companies/<?= $c['company_id'] ?>"><?= htmlspecialchars(ucfirst(strtolower($c['company_name'] ?? '-'))) ?></a>
                 <?php else: ?>-<?php endif; ?>
             </td></tr>
-            <tr><td><strong>Cargo</strong></td><td><?= htmlspecialchars($c['job_title'] ?? '-') ?></td></tr>
-            <tr><td><strong>Departamento</strong></td><td><?= htmlspecialchars($c['department'] ?? '-') ?></td></tr>
-            <tr><td><strong>Nivel decisión</strong></td><td><?= htmlspecialchars($c['decision_level'] ?? '-') ?></td></tr>
-            <tr><td><strong>Estado</strong></td><td><?= htmlspecialchars($c['status'] ?? '-') ?></td></tr>
+            <tr><td><strong>Cargo</strong></td><td><?= htmlspecialchars(ucfirst(strtolower($c['job_title'] ?? '-'))) ?></td></tr>
+            <tr><td><strong>Departamento</strong></td><td><?= htmlspecialchars(ucfirst(strtolower($c['department'] ?? '-'))) ?></td></tr>
+            <tr><td><strong>Nivel decisión</strong></td><td><?= htmlspecialchars(ucfirst(strtolower($c['decision_level'] ?? '-'))) ?></td></tr>
+            <tr><td><strong>Estado</strong></td><td><?= htmlspecialchars(ucfirst(strtolower($c['status'] ?? '-'))) ?></td></tr>
             <tr><td><strong>Contacto principal</strong></td><td><?= !empty($c['is_primary']) ? 'Sí' : 'No' ?></td></tr>
         </table>
     </div>
@@ -41,9 +41,9 @@
             </td></tr>
             <tr><td><strong>Teléfono</strong></td><td><?= htmlspecialchars($c['phone'] ?? '-') ?></td></tr>
             <tr><td><strong>Móvil</strong></td><td><?= htmlspecialchars($c['mobile'] ?? '-') ?></td></tr>
-            <tr><td><strong>Canal preferido</strong></td><td><?= htmlspecialchars($c['preferred_channel'] ?? '-') ?></td></tr>
-            <tr><td><strong>Horario contacto</strong></td><td><?= htmlspecialchars($c['contact_schedule'] ?? '-') ?></td></tr>
-            <tr><td><strong>Alta</strong></td><td><?= htmlspecialchars($c['created_at'] ?? '-') ?></td></tr>
+            <tr><td><strong>Canal preferido</strong></td><td><?= htmlspecialchars(ucfirst(strtolower($c['preferred_channel'] ?? '-'))) ?></td></tr>
+            <tr><td><strong>Horario contacto</strong></td><td><?= htmlspecialchars(ucfirst(strtolower($c['contact_schedule'] ?? '-'))) ?></td></tr>
+            <tr><td><strong>Alta</strong></td><td><?= !empty($c['created_at']) ? date('d/m/Y', strtotime($c['created_at'])) : '-' ?></td></tr>
         </table>
     </div>
 
