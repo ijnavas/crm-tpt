@@ -15,6 +15,11 @@
     </div>
 
     <div class="form-group">
+        <label>Cargo</label>
+        <input type="text" name="job_title" class="autocap" value="<?= htmlspecialchars($lead['job_title'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
         <label>Email</label>
         <input type="email" name="email" value="<?= htmlspecialchars($lead['email'] ?? '') ?>">
     </div>
@@ -22,6 +27,21 @@
     <div class="form-group">
         <label>Teléfono</label>
         <input type="text" name="phone" value="<?= htmlspecialchars($lead['phone'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
+        <label>Móvil</label>
+        <input type="text" name="mobile" value="<?= htmlspecialchars($lead['mobile'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
+        <label>Ciudad</label>
+        <input type="text" name="city" class="autocap" value="<?= htmlspecialchars($lead['city'] ?? '') ?>">
+    </div>
+
+    <div class="form-group">
+        <label>Provincia</label>
+        <input type="text" name="province" class="autocap" value="<?= htmlspecialchars($lead['province'] ?? '') ?>">
     </div>
 
     <div class="form-group">
@@ -53,6 +73,18 @@
     </div>
 
     <div class="form-group">
+        <label>Temperatura</label>
+        <select name="temperature">
+            <option value="">— Sin definir —</option>
+            <?php foreach (['frio' => 'Frío', 'tibio' => 'Tibio', 'caliente' => 'Caliente'] as $val => $label): ?>
+                <option value="<?= $val ?>" <?= (($lead['temperature'] ?? '') === $val) ? 'selected' : '' ?>>
+                    <?= $label ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <div class="form-group">
         <label>Origen</label>
         <select name="source">
             <?php foreach ($catalogs['sources'] as $source): ?>
@@ -62,6 +94,36 @@
             <?php endforeach; ?>
         </select>
     </div>
+
+    <div class="form-group">
+        <label>Servicio de interés</label>
+        <select name="service_interest">
+            <option value="">— Sin definir —</option>
+            <?php foreach ([
+                'limpieza'            => 'Limpieza',
+                'mantenimiento'       => 'Mantenimiento',
+                'jardineria'          => 'Jardinería',
+                'logistica'           => 'Logística',
+                'administracion'      => 'Administración',
+                'atencion_al_cliente' => 'Atención al cliente',
+                'produccion'          => 'Producción',
+                'hosteleria'          => 'Hostelería',
+                'otro'                => 'Otro',
+            ] as $val => $label): ?>
+                <option value="<?= $val ?>" <?= (($lead['service_interest'] ?? '') === $val) ? 'selected' : '' ?>>
+                    <?= $label ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Próxima acción</label>
+        <input type="text" name="next_action" class="autocap"
+               value="<?= htmlspecialchars($lead['next_action'] ?? '') ?>"
+               placeholder="Ej: Llamar el martes">
+    </div>
+
 </div>
 
 <div class="form-group">
@@ -71,9 +133,9 @@
 
 <script>
 document.querySelectorAll('input.autocap').forEach(function(input) {
+    if (input.value) input.value = input.value.charAt(0).toUpperCase() + input.value.slice(1).toLowerCase();
     input.addEventListener('input', function() {
-        var pos = this.selectionStart;
-        var val = this.value;
+        var pos = this.selectionStart, val = this.value;
         if (val.length > 0) {
             this.value = val.charAt(0).toUpperCase() + val.slice(1);
             this.setSelectionRange(pos, pos);
