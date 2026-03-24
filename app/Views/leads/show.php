@@ -200,7 +200,8 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
             </div>
             <div class="note-form">
                 <form method="POST" action="/leads/<?= $lead['id'] ?>/notes">
-                    <textarea name="note" rows="2" placeholder="Añadir una nota..."></textarea>
+                    <input type="hidden" name="lead_id" value="<?= $lead['id'] ?>">
+                            <textarea name="note" rows="2" placeholder="Añadir una nota..."></textarea>
                     <div class="note-form-actions">
                         <button type="submit" class="btn btn-primary" style="height:34px;font-size:13px">Guardar nota</button>
                     </div>
@@ -225,7 +226,8 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
                             <?php if ($isOwner): ?>
                             <span style="display:flex;gap:6px">
                                 <button onclick="editNote(<?= $note['id'] ?>)" class="btn-sm" style="font-size:11px">✏️</button>
-                                <form method="POST" action="/leads/<?= $lead['id'] ?>/note/<?= $note['id'] ?>/delete" style="display:inline" onsubmit="return confirm('¿Eliminar nota?')">
+                                <form method="POST" action="/lead-note/<?= $note['id'] ?>/delete" style="display:inline" onsubmit="return confirm('¿Eliminar nota?')">
+                                    <input type="hidden" name="lead_id" value="<?= $lead['id'] ?>">
                                     <button class="btn-sm" style="font-size:11px;color:var(--danger)">🗑</button>
                                 </form>
                             </span>
@@ -234,8 +236,9 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
                         <!-- Vista normal -->
                         <div class="note-text" id="note-text-<?= $note['id'] ?>"><?= nl2br(htmlspecialchars($note['note'])) ?></div>
                         <!-- Formulario edición (oculto) -->
-                        <form method="POST" action="/leads/<?= $lead['id'] ?>/note/<?= $note['id'] ?>/update"
+                        <form method="POST" action="/lead-note/<?= $note['id'] ?>/update"
                               id="note-form-<?= $note['id'] ?>" style="display:none;margin-top:8px">
+                            <input type="hidden" name="lead_id" value="<?= $lead['id'] ?>">
                             <textarea name="note" rows="2" style="width:100%;border:1px solid var(--primary);border-radius:8px;padding:8px;font-size:13px;font-family:inherit"><?= htmlspecialchars($note['note']) ?></textarea>
                             <div style="display:flex;gap:6px;margin-top:6px">
                                 <button type="submit" class="btn btn-primary" style="height:30px;font-size:12px">Guardar</button>
