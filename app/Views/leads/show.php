@@ -209,15 +209,39 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
             <?php if (empty($notes)): ?>
                 <div class="ls-empty">Sin notas todavía</div>
             <?php else: ?>
-                <?php foreach ($notes as $note): ?>
-                <div class="note-item">
+                <?php
+                $currentUserId = \App\Core\Auth::id();
+                foreach ($notes as $note):
+                    $isOwner = ($note['user_id'] ?? null) == $currentUserId;
+                ?>
+                <div class="note-item" id="note-<?= $note['id'] ?>">
                     <div class="note-avatar"><?= strtoupper(substr($note['first_name'] ?? 'U', 0, 1)) ?></div>
-                    <div class="note-body">
-                        <div class="note-meta">
-                            <strong><?= htmlspecialchars(trim(($note['first_name'] ?? '') . ' ' . ($note['last_name'] ?? ''))) ?></strong>
-                            · <?= !empty($note['created_at']) ? date('d/m/Y H:i', strtotime($note['created_at'])) : '' ?>
+                    <div class="note-body" style="flex:1">
+                        <div class="note-meta" style="display:flex;align-items:center;justify-content:space-between">
+                            <span>
+                                <strong><?= htmlspecialchars(trim(($note['first_name'] ?? '') . ' ' . ($note['last_name'] ?? ''))) ?></strong>
+                                · <?= !empty($note['created_at']) ? date('d/m/Y H:i', strtotime($note['created_at'])) : '' ?>
+                            </span>
+                            <?php if ($isOwner): ?>
+                            <span style="display:flex;gap:6px">
+                                <button onclick="editNote(<?= $note['id'] ?>)" class="btn-sm" style="font-size:11px">✏️</button>
+                                <form method="POST" action="/leads/<?= $lead['id'] ?>/notes/<?= $note['id'] ?>/delete" style="display:inline" onsubmit="return confirm('¿Eliminar nota?')">
+                                    <button class="btn-sm" style="font-size:11px;color:var(--danger)">🗑</button>
+                                </form>
+                            </span>
+                            <?php endif; ?>
                         </div>
-                        <div class="note-text"><?= nl2br(htmlspecialchars($note['note'])) ?></div>
+                        <!-- Vista normal -->
+                        <div class="note-text" id="note-text-<?= $note['id'] ?>"><?= nl2br(htmlspecialchars($note['note'])) ?></div>
+                        <!-- Formulario edición (oculto) -->
+                        <form method="POST" action="/leads/<?= $lead['id'] ?>/notes/<?= $note['id'] ?>/update"
+                              id="note-form-<?= $note['id'] ?>" style="display:none;margin-top:8px">
+                            <textarea name="note" rows="2" style="width:100%;border:1px solid var(--primary);border-radius:8px;padding:8px;font-size:13px;font-family:inherit"><?= htmlspecialchars($note['note']) ?></textarea>
+                            <div style="display:flex;gap:6px;margin-top:6px">
+                                <button type="submit" class="btn btn-primary" style="height:30px;font-size:12px">Guardar</button>
+                                <button type="button" onclick="cancelEdit(<?= $note['id'] ?>)" class="btn btn-secondary" style="height:30px;font-size:12px">Cancelar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 <?php endforeach; ?>
@@ -360,3 +384,13 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
         </div>
     </div>
 </div>
+<script>
+function editNote(id) {
+    document.getElementById('note-text-' + id).style.display = 'none';
+    document.getElementById('note-form-' + id).style.display = 'block';
+}
+function cancelEdit(id) {
+    document.getElementById('note-text-' + id).style.display = 'block';
+    document.getElementById('note-form-' + id).style.display = 'none';
+}
+</script>

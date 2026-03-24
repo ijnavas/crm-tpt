@@ -66,6 +66,16 @@ final class LeadService
         $this->repo->logActivity('lead', $id, 'status_changed', $msg);
     }
 
+    public function updateNote(int $noteId, string $note): void
+    {
+        $this->repo->updateNote($noteId, $note);
+    }
+
+    public function deleteNote(int $noteId): void
+    {
+        $this->repo->deleteNote($noteId);
+    }
+
     public function getStatusHistory(int $id): array
     {
         return $this->repo->getStatusHistory($id);

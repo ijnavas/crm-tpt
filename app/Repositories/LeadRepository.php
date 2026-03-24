@@ -240,6 +240,18 @@ final class LeadRepository
         return $stmt->fetchAll();
     }
 
+    public function updateNote(int $noteId, string $note): void
+    {
+        $stmt = $this->db->prepare("UPDATE lead_notes SET note = :note WHERE id = :id AND user_id = :user_id");
+        $stmt->execute(['id' => $noteId, 'note' => $note, 'user_id' => \App\Core\Auth::id()]);
+    }
+
+    public function deleteNote(int $noteId): void
+    {
+        $stmt = $this->db->prepare("DELETE FROM lead_notes WHERE id = :id AND user_id = :user_id");
+        $stmt->execute(['id' => $noteId, 'user_id' => \App\Core\Auth::id()]);
+    }
+
     public function getNotes(int $leadId): array
     {
         $stmt = $this->db->prepare('
