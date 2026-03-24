@@ -180,7 +180,7 @@ final class TaskRepository
             'priority'         => $data['priority'] ?? 'media',
             'status'           => $data['status'] ?? 'pendiente',
             'start_date'       => !empty($data['start_date']) ? $data['start_date'] : null,
-            'due_date'         => !empty($data['due_date']) ? $data['due_date'] : null,
+            'due_date'         => !empty($data['due_date']) ? $data['due_date'] : date('Y-m-d H:i:s'),
             'notes'            => $data['notes'] ?? null,
             'reminder_at'      => !empty($data['reminder_at']) ? $data['reminder_at'] : null,
             'assigned_user_id' => Auth::id(),
