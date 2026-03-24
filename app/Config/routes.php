@@ -11,6 +11,7 @@ use App\Controllers\SearchController;
 use App\Controllers\UserController;
 use App\Controllers\AdminController;
 use App\Controllers\AccessLogController;
+use App\Controllers\StatsController;
 use App\Controllers\ContractController;
 use App\Controllers\WorkerController;
 
@@ -73,6 +74,8 @@ return [
 ['GET', '/contracts/{id}', [ContractController::class, 'show']],
 ['GET', '/contracts/{id}/edit', [ContractController::class, 'edit']],
 ['POST', '/contracts/{id}/update', [ContractController::class, 'update']],
+
+['GET', '/stats/conversion', [StatsController::class, 'conversion']],
 
 ['GET', '/admin/logs', [AccessLogController::class, 'index']],
 

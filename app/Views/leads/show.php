@@ -1,8 +1,9 @@
 <?php
 $lead     = $leadDetail['lead'];
-$notes    = $leadDetail['notes'];
-$timeline = $leadDetail['timeline'];
-$tasks    = $leadDetail['tasks'] ?? [];
+$notes         = $leadDetail['notes'];
+$timeline      = $leadDetail['timeline'];
+$tasks         = $leadDetail['tasks'] ?? [];
+$statusHistory = $leadDetail['statusHistory'] ?? [];
 
 $statusColors = [
     'nuevo'              => ['bg'=>'#eff6ff','color'=>'#1d4ed8'],
@@ -264,6 +265,53 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
         </div>
 
     </div>
+
+        <!-- Historial de estados -->
+        <?php if (!empty($statusHistory)): ?>
+        <div class="ls-card">
+            <div class="ls-head">
+                <h3>Historial de estados (<?= count($statusHistory) ?>)</h3>
+            </div>
+            <?php
+            $statusLabels = [
+                'nuevo'=>'Nuevo','pendiente_contacto'=>'Pendiente contacto',
+                'en_seguimiento'=>'En seguimiento','cualificado'=>'Cualificado',
+                'interesado'=>'Interesado','no_interesado'=>'No interesado','convertido'=>'Convertido'
+            ];
+            $statusBg = [
+                'nuevo'=>'#eff6ff','pendiente_contacto'=>'#fefce8','en_seguimiento'=>'#faf5ff',
+                'cualificado'=>'#f0fdfa','interesado'=>'#f0fdf4','no_interesado'=>'#f9fafb','convertido'=>'#f0fdf4'
+            ];
+            $statusColor = [
+                'nuevo'=>'#1d4ed8','pendiente_contacto'=>'#a16207','en_seguimiento'=>'#7e22ce',
+                'cualificado'=>'#0f766e','interesado'=>'#15803d','no_interesado'=>'#6b7280','convertido'=>'#15803d'
+            ];
+            foreach ($statusHistory as $h):
+                $to = $h['to_status'] ?? '';
+                $from = $h['from_status'] ?? null;
+            ?>
+            <div class="note-item">
+                <div class="note-avatar" style="background:#f1f5f9;color:var(--text-soft);font-size:13px">→</div>
+                <div class="note-body">
+                    <div class="note-meta">
+                        <strong><?= htmlspecialchars($h['user_name'] ?? 'Sistema') ?></strong>
+                        · <?= !empty($h['created_at']) ? date('d/m/Y H:i', strtotime($h['created_at'])) : '' ?>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap">
+                        <?php if ($from): ?>
+                        <span class="lead-status-badge" style="background:<?= $statusBg[$from] ?? '#f9fafb' ?>;color:<?= $statusColor[$from] ?? '#6b7280' ?>"><?= $statusLabels[$from] ?? ucfirst($from) ?></span>
+                        <span style="color:var(--text-soft);font-size:12px">→</span>
+                        <?php endif; ?>
+                        <span class="lead-status-badge" style="background:<?= $statusBg[$to] ?? '#f9fafb' ?>;color:<?= $statusColor[$to] ?? '#6b7280' ?>"><?= $statusLabels[$to] ?? ucfirst($to) ?></span>
+                    </div>
+                    <?php if (!empty($h['comment'])): ?>
+                    <div class="note-text" style="margin-top:4px"><?= htmlspecialchars($h['comment']) ?></div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
 
     <!-- Timeline lateral -->
     <div>

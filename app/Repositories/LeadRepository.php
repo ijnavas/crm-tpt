@@ -174,13 +174,41 @@ final class LeadRepository
         ]);
     }
 
-    public function updateStatus(int $id, string $status): void
+    public function updateStatus(int $id, string $status, ?string $comment = null): void
     {
+        // Guardar estado anterior
+        $prev = $this->db->prepare('SELECT status FROM leads WHERE id = :id LIMIT 1');
+        $prev->execute(['id' => $id]);
+        $fromStatus = $prev->fetchColumn() ?: null;
+
         $stmt = $this->db->prepare('UPDATE leads SET status = :status WHERE id = :id');
-        $stmt->execute([
-            'id' => $id,
-            'status' => $status,
+        $stmt->execute(['id' => $id, 'status' => $status]);
+
+        // Registrar en historial
+        $hist = $this->db->prepare('
+            INSERT INTO lead_status_history (lead_id, from_status, to_status, comment, user_id)
+            VALUES (:lead_id, :from_status, :to_status, :comment, :user_id)
+        ');
+        $hist->execute([
+            'lead_id'     => $id,
+            'from_status' => $fromStatus,
+            'to_status'   => $status,
+            'comment'     => $comment,
+            'user_id'     => \App\Core\Auth::id(),
         ]);
+    }
+
+    public function getStatusHistory(int $leadId): array
+    {
+        $stmt = $this->db->prepare("
+            SELECT lsh.*, CONCAT(u.first_name, ' ', u.last_name) AS user_name
+            FROM lead_status_history lsh
+            LEFT JOIN users u ON u.id = lsh.user_id
+            WHERE lsh.lead_id = :id
+            ORDER BY lsh.created_at DESC
+        ");
+        $stmt->execute(['id' => $leadId]);
+        return $stmt->fetchAll();
     }
 
     public function insertNote(int $leadId, string $note): void

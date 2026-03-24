@@ -50,6 +50,9 @@ function nav_active(string $path, string $currentPath): string {
         <a href="/admin/logs" class="sidebar-link <?= nav_active('/admin/logs', $currentPath) ?>" onclick="closeSidebar()">
             <span class="sidebar-icon">📊</span><span>Accesos</span>
         </a>
+        <a href="/stats/conversion" class="sidebar-link <?= nav_active('/stats', $currentPath) ?>" onclick="closeSidebar()">
+            <span class="sidebar-icon">📈</span><span>Estadísticas</span>
+        </a>
         <?php endif; ?>
     </nav>
 

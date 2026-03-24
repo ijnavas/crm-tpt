@@ -58,8 +58,15 @@ final class LeadService
 
     public function updateStatus(int $id, string $status, ?string $comment = null): void
     {
-        $this->repo->updateStatus($id, $status);
-        $this->repo->logActivity('lead', $id, 'status_changed', $comment ?: 'Estado actualizado');
+        $this->repo->updateStatus($id, $status, $comment);
+        $msg = 'Estado cambiado a: ' . ucfirst(str_replace('_', ' ', $status));
+        if ($comment) $msg .= ' · ' . $comment;
+        $this->repo->logActivity('lead', $id, 'status_changed', $msg);
+    }
+
+    public function getStatusHistory(int $id): array
+    {
+        return $this->repo->getStatusHistory($id);
     }
 
     public function getFormCatalogs(): array
