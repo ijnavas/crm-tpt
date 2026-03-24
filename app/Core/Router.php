@@ -36,7 +36,9 @@ final class Router
                     ARRAY_FILTER_USE_KEY
                 );
 
-                call_user_func_array([$controller, $controllerMethod], $params);
+                // PHP 8: usar named arguments para garantizar orden correcto
+                $controllerMethod = $controllerMethod;
+                $controller->$controllerMethod(...$params);
                 return;
             }
         }
