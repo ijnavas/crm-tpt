@@ -30,21 +30,13 @@ final class Router
                 [$controllerClass, $controllerMethod] = $route['action'];
                 $controller = new $controllerClass();
 
-                // Extraer solo parámetros con nombre (no numéricos)
                 $params = array_filter(
                     $matches,
                     static fn($key) => !is_int($key),
                     ARRAY_FILTER_USE_KEY
                 );
 
-                // Usar reflexión para pasar parámetros en el orden correcto
-                $ref = new \ReflectionMethod($controllerClass, $controllerMethod);
-                $ordered = [];
-                foreach ($ref->getParameters() as $param) {
-                    $ordered[] = $params[$param->getName()] ?? null;
-                }
-
-                call_user_func_array([$controller, $controllerMethod], $ordered);
+                call_user_func_array([$controller, $controllerMethod], array_values($params));
                 return;
             }
         }

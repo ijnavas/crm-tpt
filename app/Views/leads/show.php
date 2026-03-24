@@ -200,7 +200,8 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
             </div>
             <div class="note-form">
                 <form method="POST" action="/leads/<?= $lead['id'] ?>/notes">
-                    <input type="hidden" name="lead_id" value="<?= $lead['id'] ?>">
+                    <input type="hidden" name="action" value="update">
+                            <input type="hidden" name="lead_id" value="<?= $lead['id'] ?>">
                             <input type="hidden" name="note_id" value="<?= $note['id'] ?>">
                             <textarea name="note" rows="2" placeholder="Añadir una nota..."></textarea>
                     <div class="note-form-actions">
@@ -227,7 +228,8 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
                             <?php if ($isOwner): ?>
                             <span style="display:flex;gap:6px">
                                 <button onclick="editNote(<?= $note['id'] ?>)" class="btn-sm" style="font-size:11px">✏️</button>
-                                <form method="POST" action="/lead-note/delete" style="display:inline" onsubmit="return confirm('¿Eliminar nota?')">
+                                <form method="POST" action="/lead-note" style="display:inline" onsubmit="return confirm('¿Eliminar nota?')">
+                                    <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="lead_id" value="<?= $lead['id'] ?>">
                                     <input type="hidden" name="note_id" value="<?= $note['id'] ?>">
                                     <button class="btn-sm" style="font-size:11px;color:var(--danger)">🗑</button>
@@ -238,8 +240,9 @@ $typeIcons = ['llamada'=>'📞','email'=>'📧','visita'=>'🚗','propuesta'=>'�
                         <!-- Vista normal -->
                         <div class="note-text" id="note-text-<?= $note['id'] ?>"><?= nl2br(htmlspecialchars($note['note'])) ?></div>
                         <!-- Formulario edición (oculto) -->
-                        <form method="POST" action="/lead-note/update"
+                        <form method="POST" action="/lead-note"
                               id="note-form-<?= $note['id'] ?>" style="display:none;margin-top:8px">
+                            <input type="hidden" name="action" value="update">
                             <input type="hidden" name="lead_id" value="<?= $lead['id'] ?>">
                             <input type="hidden" name="note_id" value="<?= $note['id'] ?>">
                             <textarea name="note" rows="2" style="width:100%;border:1px solid var(--primary);border-radius:8px;padding:8px;font-size:13px;font-family:inherit"><?= htmlspecialchars($note['note']) ?></textarea>
