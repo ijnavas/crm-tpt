@@ -118,27 +118,28 @@ try {
     }
     function renderResults(data) {
         dropdown.innerHTML = '';
-        const total = (data.companies||[]).length + (data.contacts||[]).length;
+        const sections = [
+            { key: 'companies', label: 'Empresas',    icon: '🏢', url: id => '/companies/'+id,  name: c => c.name,      sub: c => [c.sector, c.city].filter(Boolean).join(' · ') },
+            { key: 'contacts',  label: 'Contactos',   icon: '👤', url: id => '/contacts/'+id,   name: c => c.full_name, sub: c => [c.job_title, c.company_name].filter(Boolean).join(' · ') },
+            { key: 'leads',     label: 'Leads',       icon: '◈',  url: id => '/leads/'+id,      name: c => c.company_name || c.full_name, sub: c => c.full_name },
+            { key: 'tasks',     label: 'Tareas',      icon: '✅', url: id => '/tasks/'+id+'/edit', name: c => c.title, sub: c => [c.type, c.status].filter(Boolean).join(' · ') },
+            { key: 'contracts', label: 'Contratos',   icon: '📋', url: id => '/contracts/'+id,  name: c => c.title,     sub: c => c.company_name },
+            { key: 'workers',   label: 'Trabajadores',icon: '👷', url: id => '/workers/'+id,    name: c => c.full_name, sub: c => [c.disability_type, c.status].filter(Boolean).join(' · ') },
+        ];
+        let total = 0;
+        sections.forEach(s => total += (data[s.key]||[]).length);
         if (total === 0) { dropdown.innerHTML = '<div class="search-empty">Sin resultados</div>'; open(); return; }
-        if ((data.companies||[]).length > 0) {
-            append('div','search-label','Empresas');
-            data.companies.forEach(c => {
-                const a = make('a','search-item','/companies/'+c.id,
-                    '<span class="search-item-icon search-item-icon--company">E</span>'+
-                    '<span class="search-item-body"><strong>'+esc(c.name)+'</strong><small>'+esc(c.sector||'')+(c.city?' · '+esc(c.city):'')+'</small></span>'+
-                    '<span class="search-item-badge search-item-badge--'+esc(c.status||'')+'">'+esc(c.status||'')+'</span>');
+        sections.forEach(s => {
+            const items = data[s.key] || [];
+            if (!items.length) return;
+            append('div', 'search-label', s.label);
+            items.forEach(item => {
+                const a = make('a', 'search-item', s.url(item.id),
+                    '<span class="search-item-icon" style="background:#f1f5f9;border-radius:6px;width:26px;height:26px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">'+s.icon+'</span>'+
+                    '<span class="search-item-body"><strong>'+esc(s.name(item))+'</strong><small>'+esc(s.sub(item)||'')+'</small></span>');
                 addNav(a); dropdown.appendChild(a);
             });
-        }
-        if ((data.contacts||[]).length > 0) {
-            append('div','search-label','Contactos');
-            data.contacts.forEach(c => {
-                const a = make('a','search-item','/contacts/'+c.id,
-                    '<span class="search-item-icon search-item-icon--contact">'+esc((c.full_name||'C').charAt(0).toUpperCase())+'</span>'+
-                    '<span class="search-item-body"><strong>'+esc(c.full_name)+'</strong><small>'+esc(c.job_title||'')+(c.company_name?' · '+esc(c.company_name):'')+'</small></span>');
-                addNav(a); dropdown.appendChild(a);
-            });
-        }
+        });
         open();
     }
     function append(tag,cls,text){const el=document.createElement(tag);el.className=cls;el.textContent=text;dropdown.appendChild(el);}

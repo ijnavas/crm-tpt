@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Session;
 use App\Services\AuthService;
+use App\Repositories\AccessLogRepository;
 
 final class AuthController extends Controller
 {
@@ -36,6 +37,19 @@ final class AuthController extends Controller
 
     public function logout(): void
     {
+        $user = Auth::user();
+        if ($user) {
+            try {
+                $logRepo = new \App\Repositories\AccessLogRepository();
+                $logRepo->log([
+                    'user_id'   => Auth::id(),
+                    'user_name' => ($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''),
+                    'action'    => 'logout',
+                    'path'      => '/logout',
+                    'ip'        => $_SERVER['REMOTE_ADDR'] ?? null,
+                ]);
+            } catch (\Throwable $e) {}
+        }
         Auth::logout();
         Session::destroy();
         $this->redirect('/login');

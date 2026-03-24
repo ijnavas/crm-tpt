@@ -32,6 +32,20 @@ final class AuthService
         if (!password_verify($password, $user['password_hash'])) return false;
 
         Auth::login($user);
+
+        // Registrar acceso
+        try {
+            $logRepo = new \App\Repositories\AccessLogRepository();
+            $logRepo->log([
+                'user_id'    => $user['id'],
+                'user_name'  => ($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''),
+                'action'     => 'login',
+                'path'       => '/login',
+                'ip'         => $_SERVER['REMOTE_ADDR'] ?? null,
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
+            ]);
+        } catch (\Throwable $e) {}
+
         return true;
     }
 }
