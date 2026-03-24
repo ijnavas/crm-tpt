@@ -102,6 +102,25 @@ final class LeadController extends Controller
         $this->redirect('/leads/' . $id);
     }
 
+    public function handleNote(): void
+    {
+        $this->guard();
+        $action = Request::input('action');
+        $noteId = (int) Request::input('note_id');
+        $leadId = (int) Request::input('lead_id');
+
+        if ($action === 'update') {
+            $note = trim((string) Request::input('note'));
+            if ($note !== '' && $noteId > 0) {
+                $this->service->updateNote($noteId, $note);
+            }
+        } elseif ($action === 'delete' && $noteId > 0) {
+            $this->service->deleteNote($noteId);
+        }
+
+        $this->redirect('/leads/' . $leadId);
+    }
+
     private function guard(): void
     {
         if (!Auth::check()) {
