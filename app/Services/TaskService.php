@@ -29,6 +29,11 @@ final class TaskService
         return $this->repo->getUpcoming($limit);
     }
 
+    public function getAllForCalendar(): array
+    {
+        return $this->repo->getAllForCalendar();
+    }
+
     public function getReminders(): array
     {
         return $this->repo->getReminders();

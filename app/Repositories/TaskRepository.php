@@ -105,6 +105,22 @@ final class TaskRepository
         return array_values($grouped);
     }
 
+    public function getAllForCalendar(): array
+    {
+        $stmt = $this->db->query("
+            SELECT t.*,
+                CASE t.entity_type
+                    WHEN 'company' THEN (SELECT name FROM companies WHERE id = t.entity_id)
+                    WHEN 'lead'    THEN (SELECT full_name FROM leads WHERE id = t.entity_id)
+                    WHEN 'contact' THEN (SELECT full_name FROM company_contacts WHERE id = t.entity_id)
+                END AS entity_name
+            FROM tasks t
+            WHERE t.due_date IS NOT NULL
+            ORDER BY t.due_date ASC
+        ");
+        return $stmt->fetchAll();
+    }
+
     public function getUpcoming(int $limit = 5): array
     {
         $stmt = $this->db->prepare("

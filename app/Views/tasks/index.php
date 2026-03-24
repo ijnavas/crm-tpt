@@ -111,9 +111,11 @@ $statusClass   = ['pendiente'=>'ls-pendiente_contacto','en_curso'=>'ls-en_seguim
 
     <div class="tasks-view-tabs">
         <a href="/tasks?view=list<?= !empty($filters['status']) ? '&status='.$filters['status'] : '' ?>"
-           class="tasks-tab <?= $view !== 'grouped' ? 'active' : '' ?>">☰ Lista</a>
+           class="tasks-tab <?= $view === 'list' || $view === '' ? 'active' : '' ?>">☰ Lista</a>
         <a href="/tasks?view=grouped"
-           class="tasks-tab <?= $view === 'grouped' ? 'active' : '' ?>">⊞ Por empresa</a>
+           class="tasks-tab <?= $view === 'grouped' ? 'active' : '' ?>">⊞ Empresa</a>
+        <a href="/tasks?view=calendar"
+           class="tasks-tab <?= $view === 'calendar' ? 'active' : '' ?>">📅 Calendario</a>
     </div>
 </div>
 

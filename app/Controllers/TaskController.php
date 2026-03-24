@@ -28,6 +28,15 @@ final class TaskController extends Controller
         $filters  = Request::all();
         $view     = $filters['view'] ?? 'list';
 
+        if ($view === 'calendar') {
+            $this->view('tasks/calendar', [
+                'title'   => 'Calendario de tareas',
+                'tasks'   => $this->service->getAllForCalendar(),
+                'filters' => $filters,
+            ]);
+            return;
+        }
+
         $this->view('tasks/index', [
             'title'    => 'Tareas',
             'tasks'    => $this->service->getAll($filters),
