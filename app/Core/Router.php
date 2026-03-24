@@ -13,9 +13,9 @@ final class Router
         $pattern = '#^' . $pattern . '$#';
 
         $this->routes[] = [
-            'method' => strtoupper($method),
+            'method'  => strtoupper($method),
             'pattern' => $pattern,
-            'action' => $action,
+            'action'  => $action,
         ];
     }
 
@@ -30,15 +30,21 @@ final class Router
                 [$controllerClass, $controllerMethod] = $route['action'];
                 $controller = new $controllerClass();
 
+                // Extraer solo parámetros con nombre (no numéricos)
                 $params = array_filter(
                     $matches,
                     static fn($key) => !is_int($key),
                     ARRAY_FILTER_USE_KEY
                 );
 
-                // PHP 8: usar named arguments para garantizar orden correcto
-                $controllerMethod = $controllerMethod;
-                $controller->$controllerMethod(...$params);
+                // Usar reflexión para pasar parámetros en el orden correcto
+                $ref = new \ReflectionMethod($controllerClass, $controllerMethod);
+                $ordered = [];
+                foreach ($ref->getParameters() as $param) {
+                    $ordered[] = $params[$param->getName()] ?? null;
+                }
+
+                call_user_func_array([$controller, $controllerMethod], $ordered);
                 return;
             }
         }
