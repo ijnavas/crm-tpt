@@ -30,6 +30,7 @@ return [
     ['GET', '/leads/{id}/edit', [LeadController::class, 'edit']],
     ['POST', '/leads/{id}/update', [LeadController::class, 'update']],
     ['POST', '/leads/{id}/notes', [LeadController::class, 'storeNote']],
+    ['GET',  '/leads/{id}/status', [LeadController::class, 'show']],
     ['POST', '/leads/{id}/status', [LeadController::class, 'updateStatus']],
 ['GET', '/companies', [CompanyController::class, 'index']],
 ['GET', '/companies/create', [CompanyController::class, 'create']],
