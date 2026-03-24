@@ -186,24 +186,27 @@ final class LeadRepository
 
         // Registrar en historial
         $hist = $this->db->prepare('
-            INSERT INTO lead_status_history (lead_id, from_status, to_status, comment, user_id)
-            VALUES (:lead_id, :from_status, :to_status, :comment, :user_id)
+            INSERT INTO lead_status_history (lead_id, old_status, new_status, comment, changed_by)
+            VALUES (:lead_id, :old_status, :new_status, :comment, :changed_by)
         ');
         $hist->execute([
-            'lead_id'     => $id,
-            'from_status' => $fromStatus,
-            'to_status'   => $status,
-            'comment'     => $comment,
-            'user_id'     => \App\Core\Auth::id(),
+            'lead_id'    => $id,
+            'old_status' => $fromStatus,
+            'new_status' => $status,
+            'comment'    => $comment,
+            'changed_by' => \App\Core\Auth::id(),
         ]);
     }
 
     public function getStatusHistory(int $leadId): array
     {
         $stmt = $this->db->prepare("
-            SELECT lsh.*, CONCAT(u.first_name, ' ', u.last_name) AS user_name
+            SELECT lsh.*,
+                   lsh.old_status AS from_status,
+                   lsh.new_status AS to_status,
+                   CONCAT(u.first_name, ' ', u.last_name) AS user_name
             FROM lead_status_history lsh
-            LEFT JOIN users u ON u.id = lsh.user_id
+            LEFT JOIN users u ON u.id = lsh.changed_by
             WHERE lsh.lead_id = :id
             ORDER BY lsh.created_at DESC
         ");
