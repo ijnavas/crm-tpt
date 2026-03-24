@@ -31,9 +31,11 @@ final class LeadService
     public function getLeadDetail(int $id): array
     {
         return [
-            'lead' => $this->repo->find($id),
-            'notes' => $this->repo->getNotes($id),
-            'timeline' => $this->repo->getTimeline($id),
+            'lead'          => $this->repo->find($id),
+            'notes'         => $this->repo->getNotes($id),
+            'timeline'      => $this->repo->getTimeline($id),
+            'tasks'         => $this->repo->getTasks($id),
+            'statusHistory' => $this->repo->getStatusHistory($id),
         ];
     }
 
